@@ -12,3 +12,8 @@
     - ICNet
 - Add inference speed and accuracy tests for all models
 - Set up code tests using GitHub actions/Travis CI 
+
+
+Gradual ToDos - 
+
+- Ensure adherence to licenses of all open source cod references

@@ -1,7 +1,7 @@
 ## Models -
 
-- UNet1/8
-- UNet
-- SegNet
-- RefineNet
-- ICNet
+- [x] UNet1/8
+- [x] UNet
+- [ ] SegNet
+- [ ] RefineNet
+- [ ] ICNet
