@@ -273,8 +273,3 @@ class ICNet(nn.Module):
                 )
         state_dict.update(model_dict)
         self.load_state_dict(state_dict)
-
-
-model = ICNet()
-x = torch.randn(1, 3, 572, 572)
-print(model(x).shape)
