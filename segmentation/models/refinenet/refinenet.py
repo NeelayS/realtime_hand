@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .blocks import BasicBlock, BottleneckBlock, CRPBlock, RCUBlock, conv3x3
+from .blocks import CRPBlock, RCUBlock, conv3x3
+from ..common import BasicBlock, BottleneckBlock
 
 
 class RefineNet(nn.Module):

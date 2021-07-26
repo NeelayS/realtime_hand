@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .blocks import BasicBlock, BottleneckBlock, CRPBlock, conv1x1
+from .blocks import CRPBlock, conv1x1
+from ..common import BasicBlock, BottleneckBlock
 
 
 class LightWeightRefineNet(nn.Module):

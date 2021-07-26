@@ -2,6 +2,7 @@ import torch
 from .unet import CustomUNet, CustomSmallUNet, UNet, SmallUNet
 from .refinenet import RefineNet, LightWeightRefineNet
 from .segnet import SegNet, ModSegNet
+from .icnet import ICNet
 
 
 def test_custom_unet():
@@ -45,4 +46,15 @@ def test_segnet():
     _ = model(x)
 
     model = ModSegNet()
+    _ = model(x)
+
+
+def test_icnet():
+
+    x = torch.randn(1, 3, 572, 572)
+
+    model = ICNet()
+    _ = model(x)
+
+    model = ICNet()
     _ = model(x)
