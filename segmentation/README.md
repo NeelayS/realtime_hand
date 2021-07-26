@@ -4,5 +4,5 @@
 - UNet
 - SegNet
 - RefineNet
-<!-- - ICNet
-- DeepLabV3+ -->
+- ICNet
+<!-- - DeepLabV3+ -->

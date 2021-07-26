@@ -4,16 +4,16 @@
 
 ### Immediate ToDos -
 
-- Add implementations of
+- [ ] Add implementations of
     - [x] UNet
     - [x] Unet1/8
     - [x] SegNet
     - [x] RefineNet
-    - [ ] ICNet
+    - [X] ICNet
     - [ ] DeepLabV3+
-- Add inference speed and accuracy tests for all models
-- Set up code tests using GitHub actions/Travis CI 
-- Add load pretrained model method for RefineNet
+- [ ] Add inference speed and accuracy tests for all models
+- [ ] Set up code tests using GitHub actions/Travis CI 
+- [ ] Add load pretrained model method for RefineNet
 
 
 ### Gradual ToDos - 
