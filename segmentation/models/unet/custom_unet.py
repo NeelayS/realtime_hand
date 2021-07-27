@@ -4,25 +4,14 @@ import torch.nn.functional as F
 
 
 class Block(nn.Module):
-    def __init__(
-        self,
-        in_channels,
-        out_channels,
-        batchnorm=False,
-        stride=1,
-        padding=1,
-    ):
+    def __init__(self, in_channels, out_channels, batchnorm=False, stride=1, padding=1):
         super().__init__()
 
         self.batchnorm = batchnorm
 
         self.block = nn.Sequential(
             nn.Conv2d(
-                in_channels,
-                out_channels,
-                kernel_size=3,
-                stride=stride,
-                padding=padding,
+                in_channels, out_channels, kernel_size=3, stride=stride, padding=padding
             ),
             self._get_bn(out_channels),
             nn.ReLU(inplace=True),
@@ -48,14 +37,7 @@ class Block(nn.Module):
 
 
 class Down(nn.Module):
-    def __init__(
-        self,
-        in_channels,
-        out_channels,
-        batchnorm=False,
-        stride=1,
-        padding=1,
-    ):
+    def __init__(self, in_channels, out_channels, batchnorm=False, stride=1, padding=1):
         super().__init__()
 
         self.down = nn.Sequential(
@@ -81,24 +63,12 @@ class Up(nn.Module):
 
         if bilinear:
             self.up = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
-            self.conv = Block(
-                in_channels,
-                out_channels,
-                batchnorm,
-                stride,
-                padding,
-            )
+            self.conv = Block(in_channels, out_channels, batchnorm, stride, padding)
         else:
             self.up = nn.ConvTranspose2d(
                 in_channels, in_channels // 2, kernel_size=2, stride=2
             )
-            self.conv = Block(
-                in_channels,
-                out_channels,
-                batchnorm,
-                stride,
-                padding,
-            )
+            self.conv = Block(in_channels, out_channels, batchnorm, stride, padding)
 
     def forward(self, x1, x2):
 

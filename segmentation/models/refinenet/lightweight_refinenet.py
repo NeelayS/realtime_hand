@@ -5,7 +5,7 @@ from .blocks import BasicBlock, BottleneckBlock, CRPBlock, RCUBlock, conv1x1
 
 
 class LightWeightRefineNet(nn.Module):
-    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], num_classes=2):
+    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], n_classes=1):
 
         self.inplanes = 64
         super(LightWeightRefineNet, self).__init__()
@@ -42,7 +42,7 @@ class LightWeightRefineNet(nn.Module):
         self.mflow_conv_g4_pool = self._make_crp(256, 256, 4)
 
         self.clf_conv = nn.Conv2d(
-            256, num_classes, kernel_size=3, stride=1, padding=1, bias=True
+            256, n_classes, kernel_size=3, stride=1, padding=1, bias=True
         )
 
     def _make_crp(self, in_planes, out_planes, stages):

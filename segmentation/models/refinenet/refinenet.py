@@ -5,7 +5,7 @@ from .blocks import BasicBlock, BottleneckBlock, CRPBlock, RCUBlock, conv3x3
 
 
 class RefineNet(nn.Module):
-    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], num_classes=2):
+    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], n_classes=1):
 
         self.inplanes = 64
         super(RefineNet, self).__init__()
@@ -50,7 +50,7 @@ class RefineNet(nn.Module):
         self.mflow_conv_g4_b = self._make_rcu(256, 256, 3, 2)
 
         self.clf_conv = nn.Conv2d(
-            256, num_classes, kernel_size=3, stride=1, padding=1, bias=True
+            256, n_classes, kernel_size=3, stride=1, padding=1, bias=True
         )
 
     def _make_crp(self, in_planes, out_planes, stages):
@@ -84,6 +84,7 @@ class RefineNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -136,4 +137,3 @@ class RefineNet(nn.Module):
 
         out = self.clf_conv(x1)
         return out
-

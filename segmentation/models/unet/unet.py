@@ -11,18 +11,10 @@ class Block(nn.Module):
         self.batchnorm = batchnorm
 
         self.block = nn.Sequential(
-            nn.Conv2d(
-                in_channels,
-                out_channels,
-                kernel_size=3,
-            ),
+            nn.Conv2d(in_channels, out_channels, kernel_size=3),
             self._get_bn(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(
-                out_channels,
-                out_channels,
-                kernel_size=3,
-            ),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3),
             self._get_bn(out_channels),
             nn.ReLU(inplace=True),
         )

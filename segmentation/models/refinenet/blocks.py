@@ -98,23 +98,13 @@ class CRPBlock(nn.Module):
                 setattr(
                     self,
                     f'{i+1}_{"outvar_dimred"}',
-                    conv3x3(
-                        in_planes,
-                        out_planes,
-                        stride=1,
-                        bias=False,
-                    ),
+                    conv3x3(in_planes, out_planes, stride=1, bias=False),
                 )
             else:
                 setattr(
                     self,
                     f'{i+1}_{"outvar_dimred"}',
-                    conv3x3(
-                        out_planes,
-                        out_planes,
-                        stride=1,
-                        bias=False,
-                    ),
+                    conv3x3(out_planes, out_planes, stride=1, bias=False),
                 )
 
         self.stride = 1

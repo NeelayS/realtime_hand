@@ -27,7 +27,7 @@ class PyramidPoolingModule(nn.Module):
 
 
 class CascadeFeatFusion(nn.Module):
-    def __init__(self, low_channels, high_channels, out_channels, num_classes):
+    def __init__(self, low_channels, high_channels, out_channels, n_classes):
         super(CascadeFeatFusion, self).__init__()
 
         self.conv_low = nn.Sequential(
@@ -62,7 +62,7 @@ class CascadeFeatFusion(nn.Module):
             )
         )
         self.conv_low_cls = nn.Conv2d(
-            out_channels, num_classes, kernel_size=1, bias=False
+            out_channels, n_classes, kernel_size=1, bias=False
         )
 
     def forward(self, input_low, input_high):
@@ -86,7 +86,7 @@ class ICNet(nn.Module):
     pyramids = [1, 2, 3, 6]
     backbone_os = 8
 
-    def __init__(self, backbone="resnet18", num_classes=2, pretrained_backbone=None):
+    def __init__(self, backbone="resnet18", n_classes=2, pretrained_backbone=None):
         super(ICNet, self).__init__()
         if "resnet" in backbone:
             if backbone == "resnet18":
@@ -145,7 +145,7 @@ class ICNet(nn.Module):
             )
 
             self.backbone = get_resnet(
-                n_layers, output_stride=self.backbone_os, num_classes=None
+                n_layers, output_stride=self.backbone_os, n_classes=None
             )
             self.ppm = PyramidPoolingModule(pyramids=self.pyramids)
             self.conv_sub4_reduce = ConvBlock(
@@ -156,17 +156,17 @@ class ICNet(nn.Module):
                 low_channels=stage5_channels // 4,
                 high_channels=128,
                 out_channels=128,
-                num_classes=num_classes,
+                n_classes=n_classes,
             )
             self.cff_12 = CascadeFeatFusion(
                 low_channels=128,
                 high_channels=64,
                 out_channels=128,
-                num_classes=num_classes,
+                n_classes=n_classes,
             )
 
             self.conv_cls = nn.Conv2d(
-                in_channels=128, out_channels=num_classes, kernel_size=1, bias=False
+                in_channels=128, out_channels=n_classes, kernel_size=1, bias=False
             )
 
         else:
