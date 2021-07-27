@@ -1,4 +1,5 @@
 import os
+from segmentation.models import refinenet
 import cv2 as cv
 import numpy as np
 import torch
@@ -38,8 +39,8 @@ def test_inference(
         image = frame[..., ::-1]
         H, W = image.shape[:2]
 
-        if H==W:
-            inp_size=H
+        if H == W:
+            inp_size = H
 
         X, pad_up, pad_left, h_new, w_new = preprocessing(
             image, expected_size=inp_size, pad_value=0
@@ -70,7 +71,8 @@ def test_inference(
         if cv.waitKey(1) & 0xFF == ord("q"):
             break
 
-    fps = 1 / (sum(inference_times) / len(inference_times))
+    avg_inference_time = sum(inference_times) / len(inference_times)
+    fps = 1 / avg_inference_time
     print(f"The model performs inference at {fps} fps")
 
     if viz:
@@ -89,6 +91,7 @@ if __name__ == "__main__":
         CustomSmallUNet,
         ICNet,
         RefineNet,
+        LightWeightRefineNet,
         SegNet,
         ModSegNet,
     )
@@ -125,11 +128,12 @@ if __name__ == "__main__":
         "customsmallunet": CustomSmallUNet,
         "icnet": ICNet,
         "refinenet": RefineNet,
+        "refinenetlw": LightWeightRefineNet,
         "segnet": SegNet,
         "modsegnet": ModSegNet,
     }
 
-    model = models[args.model](n_classes=2)
+    model = models[args.model]()
 
     test_inference(
         args.video, model, args.viz, args.out_dir, args.device, args.inp_size

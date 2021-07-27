@@ -87,8 +87,8 @@ class UNet(nn.Module):
         self,
         encoder_channels=(3, 64, 128, 256, 512, 1024),
         decoder_channels=(1024, 512, 256, 128, 64),
-        n_classes=1,
-        retain_dim=True,
+        n_classes=2,
+        retain_dim=False,
         out_size=(572, 572),
     ):
         super().__init__()
@@ -111,7 +111,7 @@ class UNet(nn.Module):
         return out
 
 
-def SmallUNet(n_classes, retain_dim, out_size):
+def SmallUNet(n_classes=2, retain_dim=False, out_size=(572, 572)):
     return UNet(
         (3, 8, 16, 32, 64, 128), (128, 64, 32, 16, 8), n_classes, retain_dim, out_size
     )

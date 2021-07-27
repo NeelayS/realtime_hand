@@ -145,7 +145,7 @@ class ICNet(nn.Module):
             )
 
             self.backbone = get_resnet(
-                n_layers, output_stride=self.backbone_os, n_classes=None
+                n_layers, output_stride=self.backbone_os, n_classes=n_classes
             )
             self.ppm = PyramidPoolingModule(pyramids=self.pyramids)
             self.conv_sub4_reduce = ConvBlock(

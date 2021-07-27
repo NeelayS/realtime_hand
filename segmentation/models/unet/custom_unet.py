@@ -95,7 +95,7 @@ class CustomUNet(nn.Module):
     def __init__(
         self,
         in_channels=3,
-        n_classes=1,
+        n_classes=2,
         bilinear=True,
         channels=(64, 128, 256, 512, 1024),
     ):
@@ -133,5 +133,5 @@ class CustomUNet(nn.Module):
         return logits
 
 
-def CustomSmallUNet(in_channels, n_classes, bilinear):
+def CustomSmallUNet(in_channels=3, n_classes=2, bilinear=True):
     return CustomUNet(in_channels, n_classes, bilinear, (8, 16, 32, 64, 128))

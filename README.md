@@ -4,6 +4,22 @@
 
 <br>
 
+## Model inference times
+
+- Tested on Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+
+| Model                           | Frames per second |
+| --------------------------------| ------------------|
+| UNet                            |      2.93         |
+| UNet1/8                         |      47.674       |
+| SegNet                          |      1.99         |
+| ModSegNet                       |      6.25         |
+| RefineNet                       |      0.70         |
+| LWRefineNet                     |      1.08         |
+| ICNet                           |      2.37         |
+
+<br>
+
 ## Current directory structure - 
 
 ```

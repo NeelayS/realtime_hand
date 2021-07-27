@@ -5,7 +5,7 @@ from .blocks import BasicBlock, BottleneckBlock, CRPBlock, RCUBlock, conv1x1
 
 
 class LightWeightRefineNet(nn.Module):
-    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], n_classes=1):
+    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], n_classes=2):
 
         self.inplanes = 64
         super(LightWeightRefineNet, self).__init__()

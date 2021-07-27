@@ -119,12 +119,12 @@ class BottleneckBlock(nn.Module):
 class ResNet(nn.Module):
     basic_inplanes = 64
 
-    def __init__(self, block, layers, output_stride=32, num_classes=1000):
+    def __init__(self, block, layers, output_stride=32, n_classes=1000):
         super(ResNet, self).__init__()
 
         self.inplanes = self.basic_inplanes
         self.output_stride = output_stride
-        self.num_classes = num_classes
+        self.n_classes = n_classes
 
         if output_stride == 8:
             strides = [1, 2, 1, 1]
@@ -174,8 +174,8 @@ class ResNet(nn.Module):
             dilation=dilations[3],
         )
 
-        if self.num_classes is not None:
-            self.fc = nn.Linear(8 * self.basic_inplanes * block.expansion, num_classes)
+        if self.n_classes is not None:
+            self.fc = nn.Linear(8 * self.basic_inplanes * block.expansion, n_classes)
 
         self._init_weights()
 
@@ -190,7 +190,7 @@ class ResNet(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
 
-        if self.num_classes is not None:
+        if self.n_classes is not None:
             x = x.mean(dim=(2, 3))
             x = self.fc(x)
 
