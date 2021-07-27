@@ -38,6 +38,9 @@ def test_inference(
         image = frame[..., ::-1]
         H, W = image.shape[:2]
 
+        if H==W:
+            inp_size=H
+
         X, pad_up, pad_left, h_new, w_new = preprocessing(
             image, expected_size=inp_size, pad_value=0
         )
