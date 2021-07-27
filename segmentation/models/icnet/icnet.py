@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from collections import OrderedDict
 
-from .blocks import ResNet, ConvBlock, get_resnet
+from .blocks import ConvBlock, get_resnet
 
 
 class PyramidPoolingModule(nn.Module):

@@ -1,8 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .blocks import CRPBlock, RCUBlock, conv3x3
-from ..common import BasicBlock, BottleneckBlock
+from .blocks import BasicBlock, BottleneckBlock, CRPBlock, RCUBlock, conv3x3
 
 
 class RefineNet(nn.Module):
@@ -137,3 +136,4 @@ class RefineNet(nn.Module):
 
         out = self.clf_conv(x1)
         return out
+
