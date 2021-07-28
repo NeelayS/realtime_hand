@@ -10,13 +10,13 @@
 
 | Model                           | Frames per second |
 | --------------------------------| ------------------|
-| UNet                            |      2.93         |
-| UNet1/8                         |      47.674       |
-| SegNet                          |      1.99         |
-| ModSegNet                       |      6.25         |
-| RefineNet                       |      0.70         |
-| LWRefineNet                     |      1.08         |
-| ICNet                           |      2.37         |
+| UNet                            |      3.65         |
+| UNet1/8                         |      54.45        |
+| SegNet                          |      3.35         |
+| ModSegNet                       |      10.43        |
+| RefineNet                       |      1.08         |
+| LightWeightRefineNet            |      1.67         |
+| ICNet                           |      3.90         |
 
 <br>
 
