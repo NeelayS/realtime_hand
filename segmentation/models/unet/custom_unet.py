@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from ..common import conv3x3
 
 class Block(nn.Module):
     def __init__(self, in_channels, out_channels, batchnorm=False, stride=1, padding=1):

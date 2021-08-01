@@ -1,5 +1,5 @@
 import os
-from segmentation.models import refinenet
+from segmentation.models import *
 import cv2 as cv
 import numpy as np
 import torch
