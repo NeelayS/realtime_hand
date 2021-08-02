@@ -4,13 +4,17 @@ import torch.nn.functional as F
 
 
 class ConvBNReLU(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, **kwargs):
+    def __init__(
+        self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, **kwargs
+    ):
         super(ConvBNReLU, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False),
+            nn.Conv2d(
+                in_channels, out_channels, kernel_size, stride, padding, bias=False
+            ),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(True)
+            nn.ReLU(True),
         )
 
     def forward(self, x):
@@ -24,12 +28,14 @@ class DSConv(nn.Module):
         super(DSConv, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(dw_channels, dw_channels, 3, stride, 1, groups=dw_channels, bias=False),
+            nn.Conv2d(
+                dw_channels, dw_channels, 3, stride, 1, groups=dw_channels, bias=False
+            ),
             nn.BatchNorm2d(dw_channels),
             nn.ReLU(True),
             nn.Conv2d(dw_channels, out_channels, 1, bias=False),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(True)
+            nn.ReLU(True),
         )
 
     def forward(self, x):
@@ -41,9 +47,11 @@ class DWConv(nn.Module):
         super(DWConv, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(dw_channels, out_channels, 3, stride, 1, groups=dw_channels, bias=False),
+            nn.Conv2d(
+                dw_channels, out_channels, 3, stride, 1, groups=dw_channels, bias=False
+            ),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(True)
+            nn.ReLU(True),
         )
 
     def forward(self, x):
@@ -59,7 +67,7 @@ class LinearBottleneck(nn.Module):
             ConvBNReLU(in_channels, in_channels * t, 1),
             DWConv(in_channels * t, in_channels * t, stride),
             nn.Conv2d(in_channels * t, out_channels, 1, bias=False),
-            nn.BatchNorm2d(out_channels)
+            nn.BatchNorm2d(out_channels),
         )
 
     def forward(self, x):
@@ -87,7 +95,7 @@ class PyramidPooling(nn.Module):
         return avgpool(x)
 
     def upsample(self, x, size):
-        return F.interpolate(x, size, mode='bilinear', align_corners=True)
+        return F.interpolate(x, size, mode="bilinear", align_corners=True)
 
     def forward(self, x):
 
@@ -120,13 +128,25 @@ class DownSampler(nn.Module):
 
 
 class GlobalFeatureExtractor(nn.Module):
-    def __init__(self, in_channels=64, block_channels=(64, 96, 128),
-                 out_channels=128, t=6, num_blocks=(3, 3, 3)):
+    def __init__(
+        self,
+        in_channels=64,
+        block_channels=(64, 96, 128),
+        out_channels=128,
+        t=6,
+        num_blocks=(3, 3, 3),
+    ):
 
         super(GlobalFeatureExtractor, self).__init__()
-        self.bottleneck1 = self._make_layer(LinearBottleneck, in_channels, block_channels[0], num_blocks[0], t, 2)
-        self.bottleneck2 = self._make_layer(LinearBottleneck, block_channels[0], block_channels[1], num_blocks[1], t, 2)
-        self.bottleneck3 = self._make_layer(LinearBottleneck, block_channels[1], block_channels[2], num_blocks[2], t, 1)
+        self.bottleneck1 = self._make_layer(
+            LinearBottleneck, in_channels, block_channels[0], num_blocks[0], t, 2
+        )
+        self.bottleneck2 = self._make_layer(
+            LinearBottleneck, block_channels[0], block_channels[1], num_blocks[1], t, 2
+        )
+        self.bottleneck3 = self._make_layer(
+            LinearBottleneck, block_channels[1], block_channels[2], num_blocks[2], t, 1
+        )
         self.ppm = PyramidPooling(block_channels[2], out_channels)
 
     def _make_layer(self, block, inplanes, planes, blocks, t=6, stride=1):
@@ -147,24 +167,32 @@ class GlobalFeatureExtractor(nn.Module):
 
 
 class FeatureFusionModule(nn.Module):
-    def __init__(self, highter_in_channels, lower_in_channels, out_channels, scale_factor=4, **kwargs):
+    def __init__(
+        self,
+        highter_in_channels,
+        lower_in_channels,
+        out_channels,
+        scale_factor=4,
+        **kwargs
+    ):
         super(FeatureFusionModule, self).__init__()
 
         self.scale_factor = scale_factor
         self.dwconv = DWConv(lower_in_channels, out_channels, 1)
         self.conv_lower_res = nn.Sequential(
-            nn.Conv2d(out_channels, out_channels, 1),
-            nn.BatchNorm2d(out_channels)
+            nn.Conv2d(out_channels, out_channels, 1), nn.BatchNorm2d(out_channels)
         )
         self.conv_higher_res = nn.Sequential(
             nn.Conv2d(highter_in_channels, out_channels, 1),
-            nn.BatchNorm2d(out_channels)
+            nn.BatchNorm2d(out_channels),
         )
         self.relu = nn.ReLU(True)
 
     def forward(self, higher_res_feature, lower_res_feature):
 
-        lower_res_feature = F.interpolate(lower_res_feature, scale_factor=4, mode='bilinear', align_corners=True)
+        lower_res_feature = F.interpolate(
+            lower_res_feature, scale_factor=4, mode="bilinear", align_corners=True
+        )
         lower_res_feature = self.dwconv(lower_res_feature)
         lower_res_feature = self.conv_lower_res(lower_res_feature)
 
@@ -180,10 +208,7 @@ class Classifer(nn.Module):
 
         self.dsconv1 = DSConv(dw_channels, dw_channels, stride)
         self.dsconv2 = DSConv(dw_channels, dw_channels, stride)
-        self.conv = nn.Sequential(
-            nn.Dropout(0.1),
-            nn.Conv2d(dw_channels, n_classes, 1)
-        )
+        self.conv = nn.Sequential(nn.Dropout(0.1), nn.Conv2d(dw_channels, n_classes, 1))
 
     def forward(self, x):
 
@@ -200,7 +225,9 @@ class FastSCNN(nn.Module):
 
         self.aux = aux
         self.learning_to_downsample = DownSampler(32, 48, 64)
-        self.global_feature_extractor = GlobalFeatureExtractor(64, [64, 96, 128], 128, 6, [3, 3, 3])
+        self.global_feature_extractor = GlobalFeatureExtractor(
+            64, [64, 96, 128], 128, 6, [3, 3, 3]
+        )
         self.feature_fusion = FeatureFusionModule(64, 128, 128)
         self.classifier = Classifer(128, n_classes)
         if self.aux:
@@ -209,7 +236,7 @@ class FastSCNN(nn.Module):
                 nn.BatchNorm2d(64),
                 nn.ReLU(True),
                 nn.Dropout(0.1),
-                nn.Conv2d(64, n_classes, 1)
+                nn.Conv2d(64, n_classes, 1),
             )
 
     def forward(self, x):
@@ -225,5 +252,5 @@ class FastSCNN(nn.Module):
             auxout = self.auxlayer(higher_res_features)
             outputs.append(auxout)
             return outputs
-            
+
         return x

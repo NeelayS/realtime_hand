@@ -70,6 +70,7 @@ def test_icnet():
     out = model(x)
     assert out.shape[-2:] == x.shape[-2:]
 
+
 def test_fastscnn():
 
     x = torch.randn(1, 3, 572, 572)
@@ -77,4 +78,3 @@ def test_fastscnn():
     model = FastSCNN().eval()
     out = model(x)
     assert out.shape[-2:] == x.shape[-2:]
-

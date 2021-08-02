@@ -1,4 +1,3 @@
-import os
 import cv2 as cv
 import numpy as np
 import torch
@@ -9,9 +8,9 @@ def resize_image(
 ):
 
     """
-	image (ndarray) with either shape of [H,W,3] for RGB or [H,W] for grayscale.
-	Padding is added so that the content of image is in the center.
-	"""
+    image (ndarray) with either shape of [H,W,3] for RGB or [H,W] for grayscale.
+    Padding is added so that the content of image is in the center.
+    """
 
     h, w = image.shape[:2]
     if w > h:
@@ -87,34 +86,3 @@ def preprocessing(image, expected_size=224, pad_value=0):
     X = torch.tensor(X, dtype=torch.float32)
 
     return X, pad_up, pad_left, h_new, w_new
-
-
-def draw_matting(image, mask):
-
-    """
-	image (np.uint8)
-	mask  (np.float32) range from 0 to 1 
-	"""
-
-    mask = 255 * (1.0 - mask)
-    mask = np.expand_dims(mask, axis=2)
-    mask = np.tile(mask, (1, 1, 3))
-    mask = mask.astype(np.uint8)
-    image_matting = cv.add(image, mask)
-
-    return image_matting
-
-
-def draw_fore_to_back(image, mask, background, kernel_sz=13, sigma=0):
-
-    """
-	image (np.uint8)
-	mask  (np.float32) range from 0 to 1 
-	"""
-
-    mask_filtered = cv.GaussianBlur(mask, (kernel_sz, kernel_sz), sigma)
-    mask_filtered = np.expand_dims(mask_filtered, axis=2)
-    mask_filtered = np.tile(mask_filtered, (1, 1, 3))
-    image_alpha = image * mask_filtered + background * (1 - mask_filtered)
-
-    return image_alpha.astype(np.uint8)
