@@ -1,0 +1,19 @@
+custom_scene_brightness: "normal" #[dark, normal, bright]
+input_edge: False
+batch_size: 16
+num_seqs: 8
+max_iter_seg: 10
+max_iter_seg_adapt: 10
+display_interval: 10
+save_interval: 10
+num_classes : 3
+weight_decay: 0.001
+base_lr_seg: 0.0001
+base_lr_seg_adapt: 0.00001
+lr_policy: 'step'
+policy_parameter_seg:
+  gamma: 0.5
+  step_size: 20000
+policy_parameter_seg_adapt:
+  gamma: 0.5
+  step_size: 5000

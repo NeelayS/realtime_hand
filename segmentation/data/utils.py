@@ -83,18 +83,11 @@ def seg_augmentation_wo_kpts(img, seg):
     return img_new, seg_new
 
 
-def random_bg_augment(
-    img, img_path="", bg_adapt=False, brightness_aug=True, flip_aug=True
-):
+def random_bg_augment(img, img_path="", brightness_aug=True, flip_aug=True):
 
     if brightness_aug:
-        if bg_adapt:
-            brightness_mean = int(np.mean(img))
-            brightness_val = random.randint(brightness_mean - 50, brightness_mean + 50)
-            img = change_mean_brightness(img, None, brightness_val, 20, img_path)
-        else:
-            brightness_val = random.randint(35, 220)
-            img = change_mean_brightness(img, None, brightness_val, 20, img_path)
+        brightness_val = random.randint(35, 220)
+        img = change_mean_brightness(img, None, brightness_val, 20, img_path)
 
     img = img.astype("uint8")
 
@@ -106,35 +99,32 @@ def random_bg_augment(
     return img
 
 
-def resize_bg(fg_shape, bg_img, bg_adapt):
+def resize_bg(fg_shape, bg_img):
 
     fg_h, fg_w = fg_shape[:2]
-    if not bg_adapt:
-        bg_h, bg_w = bg_img.shape[:2]
+    bg_h, bg_w = bg_img.shape[:2]
 
-        if bg_h < fg_h or bg_w < fg_w:
-            fb_h_ratio = float(fg_h) / bg_h
-            fb_w_ratio = float(fg_w) / bg_w
-            bg_resize_ratio = max(fb_h_ratio, fb_w_ratio)
-            bg_img = cv2.resize(
-                bg_img,
-                (
-                    int(math.ceil(bg_img.shape[1] * bg_resize_ratio)),
-                    int(math.ceil(bg_img.shape[0] * bg_resize_ratio)),
-                ),
-            )
-        bg_h, bg_w = bg_img.shape[:2]
+    if bg_h < fg_h or bg_w < fg_w:
+        fb_h_ratio = float(fg_h) / bg_h
+        fb_w_ratio = float(fg_w) / bg_w
+        bg_resize_ratio = max(fb_h_ratio, fb_w_ratio)
+        bg_img = cv2.resize(
+            bg_img,
+            (
+                int(math.ceil(bg_img.shape[1] * bg_resize_ratio)),
+                int(math.ceil(bg_img.shape[0] * bg_resize_ratio)),
+            ),
+        )
+    bg_h, bg_w = bg_img.shape[:2]
 
-        bg_h_offset_range = max(bg_h - fg_h, 0)
-        bg_w_offset_range = max(bg_w - fg_w, 0)
+    bg_h_offset_range = max(bg_h - fg_h, 0)
+    bg_w_offset_range = max(bg_w - fg_w, 0)
 
-        bg_h_offset = random.randint(0, bg_h_offset_range)
-        bg_w_offset = random.randint(0, bg_w_offset_range)
-        bg_img = bg_img[
-            bg_h_offset : bg_h_offset + fg_h, bg_w_offset : bg_w_offset + fg_w, :3
-        ]
-    else:
-        bg_img = cv2.resize(bg_img, (fg_w, fg_h))
+    bg_h_offset = random.randint(0, bg_h_offset_range)
+    bg_w_offset = random.randint(0, bg_w_offset_range)
+    bg_img = bg_img[
+        bg_h_offset : bg_h_offset + fg_h, bg_w_offset : bg_w_offset + fg_w, :3
+    ]
 
     return bg_img
 
@@ -163,21 +153,17 @@ def add_alpha_border(hand_img):
     return hand_img, hand_seg, hand_all_seg
 
 
-def merge_hands(top_hand_img, bot_hand_img, bg_img, bg_adapt, bg_resize=True):
+def merge_hands(top_hand_img, bot_hand_img, bg_img, bg_resize=True):
 
     if top_hand_img is not None and bot_hand_img is not None:
         bot_hand_img, _, _ = add_alpha_border(bot_hand_img)
         top_hand_img, _, _ = add_alpha_border(top_hand_img)
-        bg_img_resized = (
-            resize_bg(bot_hand_img.shape, bg_img, bg_adapt) if bg_resize else bg_img
-        )
+        bg_img_resized = resize_bg(bot_hand_img.shape, bg_img) if bg_resize else bg_img
         combined_hand_img = add_alpha_image_to_bg(bot_hand_img, bg_img_resized)
         combined_hand_img = add_alpha_image_to_bg(top_hand_img, combined_hand_img)
     else:
         top_hand_img, _, _ = add_alpha_border(top_hand_img)
-        bg_img_resized = (
-            resize_bg(top_hand_img.shape, bg_img, bg_adapt) if bg_resize else bg_img
-        )
+        bg_img_resized = resize_bg(top_hand_img.shape, bg_img) if bg_resize else bg_img
         combined_hand_img = add_alpha_image_to_bg(top_hand_img, bg_img_resized)
 
     return combined_hand_img, bg_img_resized
@@ -215,32 +201,3 @@ def random_smoothness(img, smooth_rate=0.3):
         img[:, :, :3] = cv2.blur(img[:, :, :3], (kernel_size, kernel_size))
 
     return img
-
-
-def get_random_brightness_for_scene(args, config, bg_adapt, seq_i):
-
-    dark_lighting_set = [5]
-    normal_lighting_set = [1, 3, 4, 6, 7]
-    bright_lighting_set = [2, 8]
-    brightness_map = {"dark": (0, 55), "normal": (55, 200), "bright": (55, 255)}
-
-    if not bg_adapt:
-        return random.randint(15, 240)
-
-    else:
-        if not args.custom:
-            if seq_i in dark_lighting_set:
-                return random.randint(*brightness_map["dark"])
-            elif seq_i in normal_lighting_set:
-                return random.randint(*brightness_map["normal"])
-            elif seq_i in bright_lighting_set:
-                return random.randint(*brightness_map["bright"])
-        else:
-            assert (
-                config.custom_scene_brightness != ""
-            ), 'Error: custom scene brightness not set. Please set "custom_scene_brightness" in the config file.'
-            assert (
-                config.custom_scene_brightness in brightness_map
-            ), f'Error: unrecognized brightness {config.custom_scene_brightness} (valid options ["dark", "normal", "bright"]'
-
-            return random.randint(*brightness_map[config.custom_scene_brightness])
