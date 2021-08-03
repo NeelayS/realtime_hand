@@ -15,7 +15,7 @@ class Ego2HandsDataset(Dataset):
     IMG_W = 512
     VALID_HAND_SEG_TH = 5000
 
-    def __init__(self, img_dir, bg_dir, input_edge=False, with_arms=False):
+    def __init__(self, img_dir, bg_dir, with_arms=False, input_edge=False):
 
         self.input_edge = input_edge
         self.with_arms = with_arms
@@ -197,16 +197,16 @@ class Ego2HandsDataset(Dataset):
             seg_real[left_seg] = Ego2HandsDataset.LEFT_IDX
             right_energy.fill(0.0)
 
-        seg_real2 = cv2.resize(
-            seg_real,
-            (Ego2HandsDataset.IMG_W // 2, Ego2HandsDataset.IMG_H // 2),
-            interpolation=cv2.INTER_NEAREST,
-        )
-        seg_real4 = cv2.resize(
-            seg_real,
-            (Ego2HandsDataset.IMG_W // 4, Ego2HandsDataset.IMG_H // 4),
-            interpolation=cv2.INTER_NEAREST,
-        )
+        # seg_real2 = cv2.resize(
+        #     seg_real,
+        #     (Ego2HandsDataset.IMG_W // 2, Ego2HandsDataset.IMG_H // 2),
+        #     interpolation=cv2.INTER_NEAREST,
+        # )
+        # seg_real4 = cv2.resize(
+        #     seg_real,
+        #     (Ego2HandsDataset.IMG_W // 4, Ego2HandsDataset.IMG_H // 4),
+        #     interpolation=cv2.INTER_NEAREST,
+        # )
 
         img_real_orig_tensor = torch.from_numpy(img_real_orig)
         img_real = cv2.cvtColor(img_real, cv2.COLOR_RGB2GRAY)
@@ -217,22 +217,23 @@ class Ego2HandsDataset(Dataset):
         else:
             img_real = np.expand_dims(img_real, -1)
 
-        img_id = torch.from_numpy(np.array([0]))
         img_real_tensor = normalize_tensor(
             torch.from_numpy(img_real.transpose(2, 0, 1)), 128.0, 256.0
         )
         seg_real_tensor = torch.from_numpy(seg_real).long()
-        seg_real2_tensor = torch.from_numpy(seg_real2).long()
-        seg_real4_tensor = torch.from_numpy(seg_real4).long()
+        # seg_real2_tensor = torch.from_numpy(seg_real2).long()
+        # seg_real4_tensor = torch.from_numpy(seg_real4).long()
 
-        return (
-            img_id,
-            img_real_orig_tensor,
-            img_real_tensor,
-            seg_real_tensor,
-            seg_real2_tensor,
-            seg_real4_tensor,
-        )
+        return img_real_tensor, seg_real_tensor
+
+        # return (
+        #     img_id,
+        #     img_real_orig_tensor,
+        #     img_real_tensor,
+        #     seg_real_tensor,
+        #     seg_real2_tensor,
+        #     seg_real4_tensor,
+        # )
 
     def __len__(self):
         return len(self.img_path_list)

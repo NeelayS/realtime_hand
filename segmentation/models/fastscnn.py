@@ -111,10 +111,12 @@ class PyramidPooling(nn.Module):
 
 
 class DownSampler(nn.Module):
-    def __init__(self, dw_channels1=32, dw_channels2=48, out_channels=64, **kwargs):
+    def __init__(
+        self, in_channels=1, dw_channels1=32, dw_channels2=48, out_channels=64, **kwargs
+    ):
         super(DownSampler, self).__init__()
 
-        self.conv = ConvBNReLU(3, dw_channels1, 3, 2)
+        self.conv = ConvBNReLU(in_channels, dw_channels1, 3, 2)
         self.dsconv1 = DSConv(dw_channels1, dw_channels2, 2)
         self.dsconv2 = DSConv(dw_channels2, out_channels, 2)
 
@@ -220,16 +222,17 @@ class Classifer(nn.Module):
 
 
 class FastSCNN(nn.Module):
-    def __init__(self, n_classes=2, aux=False):
+    def __init__(self, n_classes=2, in_channels=1, aux=False):
         super(FastSCNN, self).__init__()
 
         self.aux = aux
-        self.learning_to_downsample = DownSampler(32, 48, 64)
+        self.encoder = DownSampler(in_channels, 32, 48, 64)
         self.global_feature_extractor = GlobalFeatureExtractor(
             64, [64, 96, 128], 128, 6, [3, 3, 3]
         )
         self.feature_fusion = FeatureFusionModule(64, 128, 128)
         self.classifier = Classifer(128, n_classes)
+
         if self.aux:
             self.auxlayer = nn.Sequential(
                 nn.Conv2d(64, 64, 3, padding=1, bias=False),
@@ -241,7 +244,7 @@ class FastSCNN(nn.Module):
 
     def forward(self, x):
 
-        higher_res_features = self.learning_to_downsample(x)
+        higher_res_features = self.encoder(x)
         x = self.global_feature_extractor(higher_res_features)
         x = self.feature_fusion(higher_res_features, x)
         x = self.classifier(x)
@@ -254,3 +257,9 @@ class FastSCNN(nn.Module):
             return outputs
 
         return x
+
+
+model = FastSCNN(n_classes=3).eval()
+x = torch.randn(1, 1, 288, 512)
+out = model(x)
+print(out.shape)
