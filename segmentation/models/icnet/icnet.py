@@ -86,7 +86,9 @@ class ICNet(nn.Module):
     pyramids = [1, 2, 3, 6]
     backbone_os = 8
 
-    def __init__(self, backbone="resnet18", n_classes=2, pretrained_backbone=None):
+    def __init__(
+        self, in_channels=3, backbone="resnet18", n_classes=2, pretrained_backbone=None
+    ):
         super(ICNet, self).__init__()
         if "resnet" in backbone:
             if backbone == "resnet18":
@@ -110,7 +112,7 @@ class ICNet(nn.Module):
                         (
                             "conv1",
                             ConvBlock(
-                                in_channels=3,
+                                in_channels=in_channels,
                                 out_channels=32,
                                 kernel_size=3,
                                 stride=2,
@@ -273,3 +275,11 @@ class ICNet(nn.Module):
                 )
         state_dict.update(model_dict)
         self.load_state_dict(state_dict)
+
+
+if __name__ == "__main__":
+
+    x = torch.Tensor(1, 1, 512, 512)
+    m = ICNet(n_classes=3, in_channels=1).eval()
+    out = m(x)
+    print(out.shape)

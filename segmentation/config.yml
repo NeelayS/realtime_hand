@@ -3,22 +3,21 @@
 custom_scene_brightness: "normal" #[dark, normal, bright]
 input_edge: False
 with_arms: False
-val_split_ratio: 0.1
+val_split_ratio: 0.05
+n_classes : 3
 
 # Training config
 
-device: 0
-batch_size: 16
-max_iters: 10
-display_interval: 10
-save_interval: 10
-log_interval: 10
-logdir: "./runs"
-num_classes : 3
+batch_size: 2
+iters: 10
+eval_interval: 2
+save_dir: "./model_weights"
+log: True
+log_dir: "./experiments"
 weight_decay: 0.001
 lr: 0.0001
-lr_policy: 'step'
-policy_parameter_seg:
+lr_scheduler: "StepLR"
+lr_policy:
   gamma: 0.5
   step_size: 20000
 optimizer: "SGD"

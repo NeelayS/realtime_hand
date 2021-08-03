@@ -22,9 +22,10 @@ class AverageMeter(object):
 def Config(filename):
 
     with open(filename, "r") as f:
-        parser = EasyDict(yaml.load(f))
-    for x in parser:
-        print(f"{x}: {parser[x]}")
+        parser = EasyDict(yaml.safe_load(f))
+
+    # for x in parser:
+    #     print(f"{x}: {parser[x]}")
 
     return parser
 

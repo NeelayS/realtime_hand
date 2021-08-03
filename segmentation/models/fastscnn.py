@@ -257,9 +257,3 @@ class FastSCNN(nn.Module):
             return outputs
 
         return x
-
-
-model = FastSCNN(n_classes=3).eval()
-x = torch.randn(1, 1, 288, 512)
-out = model(x)
-print(out.shape)
