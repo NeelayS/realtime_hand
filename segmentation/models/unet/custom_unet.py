@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ..common import conv3x3
+from ..blocks import conv3x3
 
 
 class Block(nn.Module):

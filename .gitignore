@@ -130,6 +130,8 @@ dmypy.json
 
 # Random
 references.md
+todo.md
 
 # Data
 *.mp4
+experiments/

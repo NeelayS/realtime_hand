@@ -5,7 +5,9 @@ from .blocks import BasicBlock, BottleneckBlock, CRPBlock, RCUBlock, conv1x1
 
 
 class LightWeightRefineNet(nn.Module):
-    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], n_classes=2):
+    def __init__(
+        self, in_channels=1, block="bottleneck", layers=[3, 4, 23, 3], n_classes=3
+    ):
 
         self.inplanes = 64
         super(LightWeightRefineNet, self).__init__()
@@ -16,7 +18,9 @@ class LightWeightRefineNet(nn.Module):
             block = BasicBlock
 
         self.do = nn.Dropout(p=0.5)
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.conv1 = nn.Conv2d(
+            in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
+        )
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -114,4 +118,5 @@ class LightWeightRefineNet(nn.Module):
         x1 = self.mflow_conv_g4_pool(x1)
 
         out = self.clf_conv(x1)
+
         return out

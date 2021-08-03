@@ -43,8 +43,8 @@ class Decoder(nn.Module):
 class ModSegNet(nn.Module):
     def __init__(
         self,
-        n_classes=2,
-        in_channels=3,
+        n_classes=3,
+        in_channels=1,
         p_dropout=0.5,
         filter_config=(32, 64, 128, 256),
     ):

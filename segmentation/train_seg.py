@@ -19,14 +19,41 @@ from .data import Ego2HandsDataset
 from segmentation.utils import AverageMeter
 
 
-def fetch_model(model_name, n_classes):
+def fetch_model(model_name, n_classes, in_channels):
 
-    model = models.__dict__[model_name](n_classes=n_classes)
+    model = models.__dict__[model_name](n_classes=n_classes, in_channels=in_channels)
 
     return model
 
 
 def train_seg(img_dir, bg_dir, config_path, model, device):
+
+    if len(device) in (1, 2):
+        device = int(device)
+
+        if device != -1:
+            if torch.cuda.is_available():
+                device = torch.device(device)
+                print(f"Running on GPU id {device}")
+            else:
+                print(f"CUDA device {device} not available. Running on CPU")
+                device = torch.device("cpu")
+        else:
+            device = torch.device("cpu")
+            print("Running on CPU")
+
+    else:
+        device_ids = device.split(",")
+        device_ids = [int(id) for id in device_ids]
+
+        if torch.cuda.is_available():
+            cuda_str = "cuda:" + device
+            device = torch.device(cuda_str)
+            model = nn.DataParallel(model, device_ids=device_ids)
+            print(f"Running on CUDA devices {device_ids}")
+        else:
+            print(f"CUDA devices {device} not available. Running on CPU")
+            device = torch.device("cpu")
 
     config = Config(config_path)
 
@@ -34,6 +61,9 @@ def train_seg(img_dir, bg_dir, config_path, model, device):
 
     val_size = math.floor(config.val_split_ratio * len(dataset))
     train_size = math.ceil((1 - config.val_split_ratio) * len(dataset))
+    print(
+        f"No. of training samples = {train_size}, no. of validation samples = {val_size}"
+    )
     train_set, val_set = random_split(dataset, [train_size, val_size])
 
     train_loader = DataLoader(train_set, batch_size=config.batch_size, shuffle=True)
@@ -97,7 +127,7 @@ def train_model(
     iters = 0
     while iters < n_iters:
 
-        print(f"Iteration {iters} of {n_iters} ")
+        print(f"Iteration {iters+1} of {n_iters} ")
 
         iter_loss = 0
         for img, mask in train_loader:
@@ -110,7 +140,9 @@ def train_model(
                 out = out[0]
 
             if out.shape[-2:] != mask.shape[-2:]:
-                pass  # ToDo
+                out = F.interpolate(
+                    out, mask.shape[-2:], mode="bilinear", align_corners=False
+                )
 
             loss = loss_fn(out, mask)
 
@@ -157,53 +189,48 @@ def eval_model(model, val_loader, n_classes, device):
 
 if __name__ == "__main__":
 
-    # import argparse
+    import argparse
 
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument(
-    #     "--imgdir",
-    #     type=str,
-    #     required=True,
-    #     help="Path to the root directory containing all training images",
-    # )
-    # parser.add_argument(
-    #     "--bgdir",
-    #     type=str,
-    #     required=True,
-    #     help="Path to the root directory containing all background images",
-    # )
-    # parser.add_argument(
-    #     "--config", type=str, required=True, help="Path to the config file"
-    # )
-
-    # parser.add_argument(
-    #     "--model",
-    #     type=str,
-    #     required=True,
-    #     help="Name (in lowercase) of the model to be trained",
-    # )
-
-    # parser.add_argument(
-    #     "--save_path",
-    #     type=str,
-    #     default="models_saved/",
-    #     help="Directory where to store models",
-    # )
-
-    # parser.add_argument(
-    #     "--device", type=int, default=0, help="GPU device id (0,1..), -1 for CPU"
-    # )
-
-    # args = parser.parse_args()
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    model = models.CustomUNet(in_channels=1, n_classes=3)
-
-    train_seg(
-        "../data/ego2hands/train",
-        "../data/ego2hands/background",
-        "segmentation/config.yml",
-        model,
-        device,
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--img_dir",
+        type=str,
+        required=True,
+        help="Path to the root directory containing all training images",
     )
+    parser.add_argument(
+        "--bg_dir",
+        type=str,
+        required=True,
+        help="Path to the root directory containing all background images",
+    )
+    parser.add_argument(
+        "--config", type=str, required=True, help="Path to the config file"
+    )
+
+    parser.add_argument(
+        "--model",
+        type=str,
+        required=True,
+        help="Name of the model to be trained",
+    )
+
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default="models_weights/",
+        help="Directory where to store models",
+    )
+
+    parser.add_argument(
+        "--device",
+        default=-1,
+        help="GPU device ids comma separated with no spaces- (0,1..). Use -1 for CPU",
+    )
+
+    args = parser.parse_args()
+
+    config = Config(args.config)
+    model = fetch_model(args.model, config.n_classes, config.in_channels)
+
+    train_seg(args.img_dir, args.bg_dir, args.config, model, args.device)
