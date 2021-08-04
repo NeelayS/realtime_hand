@@ -26,7 +26,7 @@ cd segmentation/data
 bash download_data.sh
 ```
 
-    This will download the compressed data files, extract them to `segmentation/data/train_imgs` and `segmentation/data/bg_imgs`, and will then delete the compressed files.
+This will download the compressed data files, extract them to `segmentation/data/train_imgs` and `segmentation/data/bg_imgs`, and will then delete the compressed files.
 
 - If the above command doesn't work out -
 
