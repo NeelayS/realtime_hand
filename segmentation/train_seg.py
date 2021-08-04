@@ -168,9 +168,10 @@ def train_model(
                 best_model = deepcopy(model)
                 avg_iou = new_avg_iou
 
-            writer.add_scalar("validation_iou", avg_iou, epochs+1)
+            writer.add_scalar("validation_iou", avg_iou, epochs + 1)
 
-        writer.add_scalar("epochs_training_loss", iter_loss.sum, epochs+1)
+        print(f"Loss = {iter_loss.sum}")
+        writer.add_scalar("epochs_training_loss", iter_loss.sum, epochs + 1)
 
         if epochs % save_interval == 0:
             model_name = model.__class__.__name__.lower()

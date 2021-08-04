@@ -41,7 +41,7 @@ This will download the compressed data files, extract them to `segmentation/data
         - Enter '0,1' to use CUDA devices 0 and 1 (no spaces)
         - Enter 'all' to use all CUDA devices available
 
-    Example command `bash train_segmentation.sh LightWeightRefineNet 0`
+    Example command `bash train_segmentation.sh ModSegNet 0`
 
 - To view training curves after completion -
 

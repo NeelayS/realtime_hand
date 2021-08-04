@@ -135,8 +135,8 @@ todo.md
 # Data
 *.mp4
 experiments/
-segmentation/data/train_imgs
-segmentation/data/bg_imgs
+segmentation/data/train_imgs/*
+segmentation/data/bg_imgs/*
 
 # Model
 model_weights/
