@@ -43,6 +43,12 @@ This will download the compressed data files, extract them to `segmentation/data
 
     Example command `bash train_segmentation.sh LightWeightRefineNet 0`
 
+- To view training curves after completion -
+
+```
+tensorboard --logdir=experiments
+```
+
 <br>
 
 ## Model inference times
