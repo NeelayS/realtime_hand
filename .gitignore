@@ -135,3 +135,6 @@ todo.md
 # Data
 *.mp4
 experiments/
+
+# Model
+model_weights/

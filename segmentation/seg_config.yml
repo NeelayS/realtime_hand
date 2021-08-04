@@ -10,8 +10,9 @@ in_channels: 1
 # Training config
 
 batch_size: 2
-iters: 10
-eval_interval: 2
+epochs: 10
+eval_interval: 1
+save_interval: 1
 save_dir: "./model_weights"
 log: True
 log_dir: "./experiments"
