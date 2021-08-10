@@ -191,20 +191,21 @@ def eval_model(model, val_loader, n_classes, device):
     iou_meter = AverageMeter()
     batch_size = val_loader.batch_size
 
-    for img, mask in val_loader:
+    with torch.no_grad():
+        for img, mask in val_loader:
 
-        img, mask = img.to(device), mask.to(device)
-        out = model(img)
-        if isinstance(out, Tuple):
-            out = out[0]
+            img, mask = img.to(device), mask.to(device)
+            out = model(img)
+            if isinstance(out, Tuple):
+                out = out[0]
 
-        if out.shape[-2:] != mask.shape[-2:]:
-            out = F.interpolate(
-                out, mask.shape[-2:], mode="bilinear", align_corners=False
-            )
+            if out.shape[-2:] != mask.shape[-2:]:
+                out = F.interpolate(
+                    out, mask.shape[-2:], mode="bilinear", align_corners=False
+                )
 
-        iou = iou_getter(out, mask)
-        iou_meter.update(iou.item(), n=batch_size)
+            iou = iou_getter(out, mask)
+            iou_meter.update(iou.item(), n=batch_size)
 
     return iou_meter.avg
 
