@@ -26,188 +26,206 @@ def fetch_model(model_name, n_classes, in_channels):
     return model
 
 
-def train_seg(img_dir, bg_dir, config_path, model, device):
+class SegTrainer:
+    """
+    Base Trainer class for hand segmentation models
+    """
 
-    if device == "-1":
-        device = torch.device("cpu")
-        print("Running on CPU")
+    def __init__(self, model, config_path, img_dir, bg_dir, device="cpu"):
 
-    elif not torch.cuda.is_available():
-        device = torch.device("cpu")
-        print("CUDA device(s) not available. Running on CPU")
+        self.img_dir = img_dir
+        self.bg_dir = bg_dir
+        self.model = model
+        self.config = Config(config_path)
 
-    else:
-        if device == "all":
-            device = torch.device("cuda")
-            model = nn.DataParallel(model)
+        if device == "-1":
+            device = torch.device("cpu")
+            print("Running on CPU")
+
+        elif not torch.cuda.is_available():
+            device = torch.device("cpu")
+            print("CUDA device(s) not available. Running on CPU")
 
         else:
-            device_ids = device.split(",")
-            device_ids = [int(id) for id in device_ids]
-            cuda_str = "cuda:" + device
-            device = torch.device(cuda_str)
-            model = nn.DataParallel(model, device_ids=device_ids)
-            print(f"Running on CUDA devices {device_ids}")
+            if device == "all":
+                device = torch.device("cuda")
+                model = nn.DataParallel(model)
 
-    config = Config(config_path)
+            else:
+                device_ids = device.split(",")
+                device_ids = [int(id) for id in device_ids]
+                cuda_str = "cuda:" + device
+                device = torch.device(cuda_str)
+                model = nn.DataParallel(model, device_ids=device_ids)
+                print(f"Running on CUDA devices {device_ids}")
 
-    dataset = Ego2HandsDataset(img_dir, bg_dir, config.with_arms, config.input_edge)
+        self.device = device
 
-    val_size = math.floor(config.val_split_ratio * len(dataset))
-    train_size = math.ceil((1 - config.val_split_ratio) * len(dataset))
-    print(
-        f"No. of training samples = {train_size}, no. of validation samples = {val_size}"
-    )
-    train_set, val_set = random_split(dataset, [train_size, val_size])
+    def _make_dataloader(self):
 
-    train_loader = DataLoader(train_set, batch_size=config.batch_size, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=config.batch_size, shuffle=True)
-
-    print("Loaded dataset")
-
-    if config.optimizer == "SGD":
-        optimizer = getattr(optim, config.optimizer)(
-            model.parameters(), lr=config.lr, momentum=config.momentum
+        dataset = Ego2HandsDataset(
+            self.img_dir, self.bg_dir, self.config.with_arms, self.config.input_edge
         )
-    else:
-        optimizer = getattr(optim, config.optimizer)(model.parameters(), lr=config.lr)
 
-    lr_scheduler = getattr(optim.lr_scheduler, config.lr_scheduler)(
-        optimizer, step_size=config.lr_policy.step_size, gamma=config.lr_policy.gamma
-    )
+        val_size = math.floor(self.config.val_split_ratio * len(dataset))
+        train_size = math.ceil((1 - self.config.val_split_ratio) * len(dataset))
+        print(
+            f"No. of training samples = {train_size}, no. of validation samples = {val_size}"
+        )
+        train_set, val_set = random_split(dataset, [train_size, val_size])
 
-    os.makedirs(config.save_dir, exist_ok=True)
+        train_loader = DataLoader(
+            train_set, batch_size=self.config.batch_size, shuffle=True
+        )
+        val_loader = DataLoader(
+            val_set, batch_size=self.config.batch_size, shuffle=True
+        )
 
-    print("Training!")
-    model = train_model(
-        model,
-        train_loader,
-        val_loader,
-        config.epochs,
-        optimizer,
-        lr_scheduler,
-        device,
-        config.n_classes,
-        config.save_dir,
-        config.save_interval,
-        config.eval_interval,
-        log_dir=config.log_dir,
-    )
+        print("Loaded dataset")
 
-    model_name = model.__class__.__name__.lower()
-    torch.save(
-        model.state_dict(), os.path.join(config.save_dir, model_name + "_best.pth")
-    )
+        self.train_loader = train_loader
+        self.val_loader = val_loader
 
+    def _interpolate(self, img, mask, size=None):
 
-def train_model(
-    model,
-    train_loader,
-    val_loader,
-    n_epochs,
-    optimizer,
-    lr_scheduler,
-    device,
-    n_classes,
-    save_dir,
-    save_interval=2,
-    eval_interval=2,
-    log_dir=None,
-):
+        if size is None:
+            size = mask.shape[-2:]
 
-    writer = SummaryWriter(log_dir)
+        if img.shape[-2:] != size:
+            img = F.interpolate(img, size, mode="bilinear", align_corners=False)
 
-    loss_fn = nn.CrossEntropyLoss()
+        return img, mask
 
-    avg_iou = 0
-    best_model = deepcopy(model)
+    def _calculate_loss(self, img, mask, loss_fn):
 
-    model = model.to(device)
-    model.train()
+        return loss_fn(img, mask)
 
-    iter_loss = AverageMeter()
+    def _train_model(self, n_epochs, loss_fn, optimizer, lr_scheduler):
 
-    epochs = 0
-    while epochs < n_epochs:
+        writer = SummaryWriter(self.config.log_dir)
 
-        print(f"Epoch {epochs+1} of {n_epochs} ")
+        avg_iou = 0
+        best_model = deepcopy(self.model)
 
-        iter_loss.reset()
-        for iteration, (img, mask) in enumerate(train_loader):
+        model = self.model.to(self.device)
+        model.train()
 
-            img, mask = img.to(device), mask.to(device)
-            out = model(img)
-            if isinstance(out, Tuple):
-                out = out[0]
+        iter_loss = AverageMeter()
 
-            if out.shape[-2:] != mask.shape[-2:]:
-                out = F.interpolate(
-                    out, mask.shape[-2:], mode="bilinear", align_corners=False
+        epochs = 0
+        while epochs < n_epochs:
+
+            print(f"Epoch {epochs+1} of {n_epochs} ")
+
+            iter_loss.reset()
+            for iteration, (img, mask) in enumerate(self.train_loader):
+
+                img, mask = img.to(self.device), mask.to(self.device)
+                out = model(img)
+                if isinstance(out, Tuple):
+                    out = out[0]
+
+                out, mask = self._interpolate(out, mask)
+
+                loss = self._calculate_loss(out, mask, loss_fn)
+
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                lr_scheduler.step()
+
+                iter_loss.update(loss.item(), self.train_loader.batch_size)
+
+                if iteration % 5000 == 0:
+                    writer.add_scalar(
+                        "avg_training_loss",
+                        iter_loss.avg,
+                        iteration + (epochs * len(self.train_loader.dataset)),
+                    )
+
+            if epochs % self.eval_interval == 0:
+
+                new_avg_iou = self._eval_model(model)
+                if new_avg_iou > avg_iou:
+                    best_model = deepcopy(model)
+                    avg_iou = new_avg_iou
+
+                writer.add_scalar("validation_iou", avg_iou, epochs + 1)
+
+            print(f"Loss = {iter_loss.sum}")
+            writer.add_scalar("epochs_training_loss", iter_loss.sum, epochs + 1)
+
+            if epochs % self.config.save_interval == 0:
+                model_name = model.__class__.__name__.lower()
+                torch.save(
+                    model.state_dict(),
+                    os.path.join(self.config.save_dir, model_name + ".pth"),
                 )
 
-            loss = loss_fn(out, mask)
+            epochs += 1
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            lr_scheduler.step()
+        writer.close()
 
-            iter_loss.update(loss.item(), train_loader.batch_size)
+        return best_model
 
-            if iteration % 5000 == 0:
-                writer.add_scalar(
-                    "avg_training_loss",
-                    iter_loss.avg,
-                    iteration + (epochs * len(train_loader.dataset)),
-                )
+    def _eval_model(self, model):
 
-        if epochs % eval_interval == 0:
+        model = model.to(self.device)
+        iou_getter = IoU(num_classes=self.config.n_classes)
+        iou_meter = AverageMeter()
+        batch_size = self.val_loader.batch_size
 
-            new_avg_iou = eval_model(model, val_loader, n_classes, device)
-            if new_avg_iou > avg_iou:
-                best_model = deepcopy(model)
-                avg_iou = new_avg_iou
+        with torch.no_grad():
+            for img, mask in self.val_loader:
 
-            writer.add_scalar("validation_iou", avg_iou, epochs + 1)
+                img, mask = img.to(self.device), mask.to(self.device)
+                out = model(img)
+                if isinstance(out, Tuple):
+                    out = out[0]
 
-        print(f"Loss = {iter_loss.sum}")
-        writer.add_scalar("epochs_training_loss", iter_loss.sum, epochs + 1)
+                if out.shape[-2:] != mask.shape[-2:]:
+                    out = self._interpolate(out, mask.shape[-2:])
 
-        if epochs % save_interval == 0:
-            model_name = model.__class__.__name__.lower()
-            torch.save(model.state_dict(), os.path.join(save_dir, model_name + ".pth"))
+                iou = iou_getter(out, mask)
+                iou_meter.update(iou.item(), n=batch_size)
 
-        epochs += 1
+        return iou_meter.avg
 
-    writer.close()
+    def train(self, n_epochs=None):
 
-    return best_model
+        if n_epochs is None:
+            n_epochs = self.config.n_epochs
 
+        self._make_dataloader()
+        model_name = self.model.__class__.__name__.lower()
 
-def eval_model(model, val_loader, n_classes, device):
+        if config.optimizer == "SGD":
+            optimizer = getattr(optim, config.optimizer)(
+                self.model.parameters(), lr=config.lr, momentum=config.momentum
+            )
+        else:
+            optimizer = getattr(optim, config.optimizer)(
+                self.model.parameters(), lr=config.lr
+            )
 
-    model = model.to(device)
-    iou_getter = IoU(num_classes=n_classes)
-    iou_meter = AverageMeter()
-    batch_size = val_loader.batch_size
+        lr_scheduler = getattr(optim.lr_scheduler, config.lr_scheduler)(
+            optimizer,
+            step_size=config.lr_policy.step_size,
+            gamma=config.lr_policy.gamma,
+        )
 
-    with torch.no_grad():
-        for img, mask in val_loader:
+        loss_fn = nn.CrossEntropyLoss()
 
-            img, mask = img.to(device), mask.to(device)
-            out = model(img)
-            if isinstance(out, Tuple):
-                out = out[0]
+        os.makedirs(config.save_dir, exist_ok=True)
 
-            if out.shape[-2:] != mask.shape[-2:]:
-                out = F.interpolate(
-                    out, mask.shape[-2:], mode="bilinear", align_corners=False
-                )
+        print(f"Training {model_name} for {n_epochs}")
+        model = self._train_model(n_epochs, loss_fn, optimizer, lr_scheduler)
+        print("Training complete!")
 
-            iou = iou_getter(out, mask)
-            iou_meter.update(iou.item(), n=batch_size)
-
-    return iou_meter.avg
+        torch.save(
+            model.state_dict(), os.path.join(config.save_dir, model_name + "_best.pth")
+        )
+        print("Saved best model!")
 
 
 if __name__ == "__main__":
@@ -256,4 +274,5 @@ if __name__ == "__main__":
     config = Config(args.config)
     model = fetch_model(args.model, config.n_classes, config.in_channels)
 
-    train_seg(args.img_dir, args.bg_dir, args.config, model, args.device)
+    trainer = SegTrainer(model, args.config, args.img_dir, args.bg_dir, args.device)
+    trainer.train(n_epochs=1)
