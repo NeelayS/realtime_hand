@@ -142,7 +142,7 @@ def train_model(
 
             if out.shape[-2:] != mask.shape[-2:]:
                 out = F.interpolate(
-                    out, mask.shape[-2:], mode="bilinear", align_corners=False
+                    out, mask.shape[-2:], mode="bilinear", align_corners=True
                 )
 
             loss = loss_fn(out, mask)
@@ -201,7 +201,7 @@ def eval_model(model, val_loader, n_classes, device):
 
             if out.shape[-2:] != mask.shape[-2:]:
                 out = F.interpolate(
-                    out, mask.shape[-2:], mode="bilinear", align_corners=False
+                    out, mask.shape[-2:], mode="bilinear", align_corners=True
                 )
 
             iou = iou_getter(out, mask)
