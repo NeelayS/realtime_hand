@@ -96,11 +96,16 @@ class SegTrainer:
 
         return img, mask
 
-    def _calculate_loss(self, img, mask, loss_fn):
+    def _calculate_loss(self, img, mask):
+
+        if isinstance(img, Tuple):
+            img = img[0]
+
+        loss_fn = nn.CrossEntropyLoss()
 
         return loss_fn(img, mask)
 
-    def _train_model(self, n_epochs, loss_fn, optimizer, lr_scheduler):
+    def _train_model(self, n_epochs, optimizer, lr_scheduler):
 
         writer = SummaryWriter(self.config.log_dir)
 
@@ -127,7 +132,7 @@ class SegTrainer:
 
                 out, mask = self._interpolate(out, mask)
 
-                loss = self._calculate_loss(out, mask, loss_fn)
+                loss = self._calculate_loss(out, mask)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -214,12 +219,10 @@ class SegTrainer:
             gamma=config.lr_policy.gamma,
         )
 
-        loss_fn = nn.CrossEntropyLoss()
-
         os.makedirs(config.save_dir, exist_ok=True)
 
         print(f"Training {model_name} for {n_epochs}")
-        model = self._train_model(n_epochs, loss_fn, optimizer, lr_scheduler)
+        model = self._train_model(n_epochs, optimizer, lr_scheduler)
         print("Training complete!")
 
         torch.save(
