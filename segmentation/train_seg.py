@@ -96,14 +96,16 @@ class SegTrainer:
 
         return img, mask
 
-    def _calculate_loss(self, img, mask):
+    def _calculate_loss(self, out, mask):
 
-        if isinstance(img, Tuple):
-            img = img[0]
+        if isinstance(out, Tuple):
+            out = out[0]
+
+        out, mask = self._interpolate(out, mask)
 
         loss_fn = nn.CrossEntropyLoss()
 
-        return loss_fn(img, mask)
+        return loss_fn(out, mask)
 
     def _train_model(self, n_epochs, optimizer, lr_scheduler):
 
@@ -127,10 +129,6 @@ class SegTrainer:
 
                 img, mask = img.to(self.device), mask.to(self.device)
                 out = model(img)
-                if isinstance(out, Tuple):
-                    out = out[0]
-
-                out, mask = self._interpolate(out, mask)
 
                 loss = self._calculate_loss(out, mask)
 
