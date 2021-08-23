@@ -92,7 +92,7 @@ class SegTrainer:
             size = mask.shape[-2:]
 
         if img.shape[-2:] != size:
-            img = F.interpolate(img, size, mode="bilinear", align_corners=False)
+            img = F.interpolate(img, size, mode="bilinear", align_corners=True)
 
         return img, mask
 
