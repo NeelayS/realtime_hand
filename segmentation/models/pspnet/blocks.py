@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
@@ -65,8 +66,48 @@ class Bottleneck(nn.Module):
         return out
 
 
+class PSPModule(nn.Module):
+    def __init__(self, features, out_features=512, sizes=(1, 2, 3, 6)):
+        super(PSPModule, self).__init__()
+
+        self.stages = []
+        self.stages = nn.ModuleList(
+            [self._make_stage(features, out_features, size) for size in sizes]
+        )
+        self.bottleneck = nn.Sequential(
+            nn.Conv2d(
+                features + len(sizes) * out_features,
+                out_features,
+                kernel_size=3,
+                padding=1,
+                dilation=1,
+                bias=False,
+            ),
+            nn.BatchNorm2d(out_features),
+            nn.ReLU(),
+            nn.Dropout2d(0.1),
+        )
+
+    def _make_stage(self, features, out_features, size):
+        prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
+        conv = nn.Conv2d(features, out_features, kernel_size=1, bias=False)
+        bn = nn.BatchNorm2d(out_features)
+        return nn.Sequential(prior, conv, bn)
+
+    def forward(self, feats):
+        h, w = feats.size(2), feats.size(3)
+        priors = [
+            F.upsample(
+                input=stage(feats), size=(h, w), mode="bilinear", align_corners=True
+            )
+            for stage in self.stages
+        ] + [feats]
+        bottle = self.bottleneck(torch.cat(priors, 1))
+        return bottle
+
+
 class ResNet(nn.Module):
-    def __init__(self, block, layers, num_classes):
+    def __init__(self, block, layers, n_classes):
         self.inplanes = 128
         super(ResNet, self).__init__()
         self.conv1 = conv3x3(3, 64, stride=2)
@@ -93,7 +134,7 @@ class ResNet(nn.Module):
 
         self.head = nn.Sequential(
             PSPModule(2048, 512),
-            nn.Conv2d(512, num_classes, kernel_size=1, stride=1, padding=0, bias=True),
+            nn.Conv2d(512, n_classes, kernel_size=1, stride=1, padding=0, bias=True),
         )
 
         self.dsn = nn.Sequential(
@@ -101,7 +142,7 @@ class ResNet(nn.Module):
             nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.Dropout2d(0.1),
-            nn.Conv2d(512, num_classes, kernel_size=1, stride=1, padding=0, bias=True),
+            nn.Conv2d(512, n_classes, kernel_size=1, stride=1, padding=0, bias=True),
         )
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1, multi_grid=1):
@@ -115,7 +156,7 @@ class ResNet(nn.Module):
                     stride=stride,
                     bias=False,
                 ),
-                nn.BatchNorm2d(planes * block.expansion, affine=affine_par),
+                nn.BatchNorm2d(planes * block.expansion, affine=True),
             )
 
         layers = []

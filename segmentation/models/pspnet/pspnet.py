@@ -2,47 +2,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 import torch
 
-from .blocks import conv3x3, ResNet, Bottleneck
-
-
-class PSPModule(nn.Module):
-    def __init__(self, features, out_features=512, sizes=(1, 2, 3, 6)):
-        super(PSPModule, self).__init__()
-
-        self.stages = []
-        self.stages = nn.ModuleList(
-            [self._make_stage(features, out_features, size) for size in sizes]
-        )
-        self.bottleneck = nn.Sequential(
-            nn.Conv2d(
-                features + len(sizes) * out_features,
-                out_features,
-                kernel_size=3,
-                padding=1,
-                dilation=1,
-                bias=False,
-            ),
-            nn.BatchNorm2d(out_features),
-            nn.ReLU(),
-            nn.Dropout2d(0.1),
-        )
-
-    def _make_stage(self, features, out_features, size):
-        prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
-        conv = nn.Conv2d(features, out_features, kernel_size=1, bias=False)
-        bn = nn.BatchNorm2d(out_features)
-        return nn.Sequential(prior, conv, bn)
-
-    def forward(self, feats):
-        h, w = feats.size(2), feats.size(3)
-        priors = [
-            F.upsample(
-                input=stage(feats), size=(h, w), mode="bilinear", align_corners=True
-            )
-            for stage in self.stages
-        ] + [feats]
-        bottle = self.bottleneck(torch.cat(priors, 1))
-        return bottle
+from .blocks import conv3x3, ResNet, Bottleneck, PSPModule
 
 
 class PSPHead(nn.Module):

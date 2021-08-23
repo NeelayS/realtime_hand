@@ -129,8 +129,7 @@ dmypy.json
 .pyre/
 
 # Random
-references.md
-todo.md
+
 
 # Data
 *.mp4
