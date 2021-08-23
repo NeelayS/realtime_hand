@@ -9,9 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 import os
 import math
 import numpy as np
-import cv2
 from copy import deepcopy
-from typing import Tuple
 
 import segmentation.models as models
 from segmentation.utils import Config
@@ -98,7 +96,7 @@ class SegTrainer:
 
     def _calculate_loss(self, out, mask):
 
-        if isinstance(out, Tuple):
+        if isinstance(out, tuple) or isinstance(out, list):
             out = out[0]
 
         out, mask = self._interpolate(out, mask)
@@ -183,7 +181,7 @@ class SegTrainer:
 
                 img, mask = img.to(self.device), mask.to(self.device)
                 out = model(img)
-                if isinstance(out, Tuple):
+                if isinstance(out, tuple) or isinstance(out, list):
                     out = out[0]
 
                 if out.shape[-2:] != mask.shape[-2:]:
