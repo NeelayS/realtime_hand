@@ -22,8 +22,6 @@ class ConvBNReLU(nn.Module):
 
 
 class DSConv(nn.Module):
-    """Depthwise Separable Convolutions"""
-
     def __init__(self, dw_channels, out_channels, stride=1, **kwargs):
         super(DSConv, self).__init__()
 
@@ -222,7 +220,7 @@ class Classifer(nn.Module):
 
 
 class FastSCNN(nn.Module):
-    def __init__(self, n_classes=2, in_channels=1, aux=False):
+    def __init__(self, n_classes=3, in_channels=1, aux=False):
         super(FastSCNN, self).__init__()
 
         self.aux = aux

@@ -87,7 +87,7 @@ class ICNet(nn.Module):
     backbone_os = 8
 
     def __init__(
-        self, in_channels=3, backbone="resnet18", n_classes=2, pretrained_backbone=None
+        self, in_channels=3, backbone="resnet18", n_classes=3, pretrained_backbone=None
     ):
         super(ICNet, self).__init__()
         if "resnet" in backbone:
