@@ -23,6 +23,12 @@ def fetch_model(model_name, n_classes, in_channels):
 
     return model
 
+def fetch_trainer(model_name):
+
+    trainer = models.__dict__[model_name+"Trainer"]
+
+    return trainer
+
 
 class SegTrainer:
     """
@@ -276,5 +282,11 @@ if __name__ == "__main__":
     config = Config(args.config)
     model = fetch_model(args.model, config.n_classes, config.in_channels)
 
-    trainer = SegTrainer(model, args.config, args.img_dir, args.bg_dir, args.device)
-    trainer.train(n_epochs=1)
+    try:
+        trainer_fn = fetch_trainer(model)
+        trainer = trainer_fn(model, args.config, args.img_dir, args.bg_dir, args.device)
+
+    except:
+        trainer = SegTrainer(model, args.config, args.img_dir, args.bg_dir, args.device)
+
+    trainer.train()

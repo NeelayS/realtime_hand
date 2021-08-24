@@ -102,6 +102,7 @@ if __name__ == "__main__":
             "__init__.py",
             "README.md",
             "references.md",
+            "todo.md",
             "env.yml",
             "LICENSE",
             "requirements.txt",

@@ -72,39 +72,76 @@ tensorboard --logdir=experiments
 ```
 /
 ├── generate_dir_structure.py
-└── segmentation/
-    ├── models/
-    │   ├── icnet/
-    │   │   ├── blocks.py
-    │   │   └── icnet.py
-    │   ├── refinenet/
-    │   │   ├── blocks.py
-    │   │   ├── lightweight_refinenet.py
-    │   │   └── refinenet.py
-    │   ├── segnet/
-    │   │   ├── modsegnet.py
-    │   │   └── segnet.py
-    │   ├── test_models.py
-    │   └── unet/
-    │       ├── custom_unet.py
-    │       └── unet.py
-    └── test_inference.py
+├── scripts/
+│   └── train_segmentation.sh
+├── segmentation/
+│   ├── data/
+│   │   ├── bg_imgs/
+│   │   │   └── 00000.jpg
+│   │   ├── dataset.py
+│   │   ├── download_data.sh
+│   │   ├── train_imgs/
+│   │   │   ├── sample.png
+│   │   │   └── sample_energy.png
+│   │   └── utils.py
+│   ├── datasets_comparison.png
+│   ├── models/
+│   │   ├── bisegnet/
+│   │   │   ├── bisegnet.py
+│   │   │   ├── blocks.py
+│   │   │   └── trainer.py
+│   │   ├── blocks.py
+│   │   ├── common.py
+│   │   ├── criterion.py
+│   │   ├── dfanet/
+│   │   │   ├── blocks.py
+│   │   │   ├── criterion.py
+│   │   │   ├── dfanet.py
+│   │   │   └── trainer.py
+│   │   ├── dfsegnet/
+│   │   │   ├── blocks.py
+│   │   │   ├── dfsegnet.py
+│   │   │   └── trainer.py
+│   │   ├── espnet/
+│   │   │   ├── blocks.py
+│   │   │   ├── espnet.py
+│   │   │   └── trainer.py
+│   │   ├── fastscnn/
+│   │   │   ├── fastscnn.py
+│   │   │   └── trainer.py
+│   │   ├── icnet/
+│   │   │   ├── blocks.py
+│   │   │   ├── criterion.py
+│   │   │   ├── custom_icnet.py
+│   │   │   ├── icnet.py
+│   │   │   └── trainer.py
+│   │   ├── pspnet/
+│   │   │   ├── blocks.py
+│   │   │   └── pspnet.py
+│   │   ├── refinenet/
+│   │   │   ├── blocks.py
+│   │   │   ├── lightweight_refinenet.py
+│   │   │   └── refinenet.py
+│   │   ├── segnet/
+│   │   │   ├── modsegnet.py
+│   │   │   └── segnet.py
+│   │   ├── swiftnet/
+│   │   │   ├── blocks.py
+│   │   │   ├── swiftnet.py
+│   │   │   └── trainer.py
+│   │   └── unet/
+│   │       ├── custom_unet.py
+│   │       └── unet.py
+│   ├── predict.py
+│   ├── seg_config.yml
+│   ├── tests/
+│   │   ├── test_inference.py
+│   │   └── test_models.py
+│   ├── train_seg.py
+│   └── utils/
+│       ├── data_utils.py
+│       ├── metrics.py
+│       ├── other_utils.py
+│       └── viz.py
+└── setup.py
 ```
-
-### Immediate ToDos -
-
-- [ ] Add implementations of
-    - [x] UNet
-    - [x] Unet1/8
-    - [x] SegNet
-    - [x] RefineNet
-    - [X] ICNet
-    - [ ] DeepLabV3+
-- [ ] Add inference speed and accuracy tests for all models
-- [ ] Set up code tests using GitHub actions/Travis CI 
-- [ ] Add load pretrained model method for RefineNet
-
-
-### Gradual ToDos - 
-
-- Ensure adherence to licenses of all open source code references

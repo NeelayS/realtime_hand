@@ -1,12 +1,20 @@
 ## Models 
 
+- BiSegNet
+- DFANet
+- DFSegNet
+- ESPNet
+- FastSCNN
+- ICNet
+- CustomICNet
+- PSPNet
+- RefineNet
+- LightWeightRefineNet
+- SegNet
+- ModSegNet
+- SwiftNet
 - UNet1/8
 - UNet
-- SegNet
-- RefineNet
-- ICNet
-<!-- - DeepLabV3+ -->
-
 
 
 ## Hand Segmentation Datasets 
