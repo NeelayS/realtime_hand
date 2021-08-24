@@ -36,7 +36,7 @@ class SegTrainer:
         self.model = model
         self.config = Config(config_path)
 
-        if device == "-1":
+        if device == "-1" or device == "cpu":
             device = torch.device("cpu")
             print("Running on CPU")
 
@@ -176,6 +176,7 @@ class SegTrainer:
         iou_meter = AverageMeter()
         batch_size = self.val_loader.batch_size
 
+        model.eval()
         with torch.no_grad():
             for img, mask in self.val_loader:
 
@@ -189,6 +190,8 @@ class SegTrainer:
 
                 iou = iou_getter(out, mask)
                 iou_meter.update(iou.item(), n=batch_size)
+
+        model.train()
 
         return iou_meter.avg
 

@@ -5,7 +5,7 @@ from .blocks import BasicBlock, BottleneckBlock, CRPBlock, RCUBlock, conv3x3
 
 
 class RefineNet(nn.Module):
-    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], n_classes=2):
+    def __init__(self, block="bottleneck", layers=[3, 4, 23, 3], n_classes=3):
 
         self.inplanes = 64
         super(RefineNet, self).__init__()
@@ -136,4 +136,5 @@ class RefineNet(nn.Module):
         x1 = self.do(x1)
 
         out = self.clf_conv(x1)
+
         return out

@@ -22,8 +22,6 @@ class ConvBNReLU(nn.Module):
 
 
 class DSConv(nn.Module):
-    """Depthwise Separable Convolutions"""
-
     def __init__(self, dw_channels, out_channels, stride=1, **kwargs):
         super(DSConv, self).__init__()
 
@@ -222,7 +220,7 @@ class Classifer(nn.Module):
 
 
 class FastSCNN(nn.Module):
-    def __init__(self, n_classes=2, in_channels=1, aux=False):
+    def __init__(self, n_classes=3, in_channels=1, aux=False):
         super(FastSCNN, self).__init__()
 
         self.aux = aux
@@ -254,13 +252,7 @@ class FastSCNN(nn.Module):
         if self.aux:
             auxout = self.auxlayer(higher_res_features)
             outputs.append(auxout)
+
             return outputs
 
         return x
-
-
-if __name__ == "__main__":
-    i = torch.Tensor(1, 1, 512, 512)
-    m = FastSCNN(3).eval()
-    o = m(i)
-    print(o.size())

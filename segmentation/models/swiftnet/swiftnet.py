@@ -96,7 +96,7 @@ class SwiftNetResNet(nn.Module):
 
         self.inplanes = 64
         self.efficient = efficient
-        self.nclass = num_features
+        self.n_classes = num_features
         self.use_bn = use_bn
         self.conv1 = nn.Conv2d(
             in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
@@ -142,7 +142,7 @@ class SwiftNetResNet(nn.Module):
 
         level_size = self.spp_size // num_levels
 
-        self.dsn = dsn(256, self.nclass)
+        self.dsn = dsn(256, self.n_classes)
 
         self.spp = SpatialPyramidPooling(
             self.inplanes,

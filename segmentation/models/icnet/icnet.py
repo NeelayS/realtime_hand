@@ -27,7 +27,13 @@ class PyramidPoolingModule(nn.Module):
 
 
 class CascadeFeatFusion(nn.Module):
-    def __init__(self, low_channels, high_channels, out_channels, n_classes):
+    def __init__(
+        self,
+        low_channels,
+        high_channels,
+        out_channels,
+        n_classes,
+    ):
         super(CascadeFeatFusion, self).__init__()
 
         self.conv_low = nn.Sequential(
@@ -87,9 +93,14 @@ class ICNet(nn.Module):
     backbone_os = 8
 
     def __init__(
-        self, in_channels=3, backbone="resnet18", n_classes=2, pretrained_backbone=None
+        self,
+        in_channels=3,
+        backbone="resnet18",
+        n_classes=3,
+        pretrained_backbone=None,
     ):
         super(ICNet, self).__init__()
+
         if "resnet" in backbone:
             if backbone == "resnet18":
                 n_layers = 18
@@ -159,12 +170,14 @@ class ICNet(nn.Module):
                 high_channels=128,
                 out_channels=128,
                 n_classes=n_classes,
+                training=self.training,
             )
             self.cff_12 = CascadeFeatFusion(
                 low_channels=128,
                 high_channels=64,
                 out_channels=128,
                 n_classes=n_classes,
+                training=self.training,
             )
 
             self.conv_cls = nn.Conv2d(
@@ -203,6 +216,7 @@ class ICNet(nn.Module):
                 x_cff_12, scale_factor=2, mode="bilinear", align_corners=True
             )
             x_124_cls = self.conv_cls(x_cff_12)
+
             return x_124_cls, x_12_cls, x_24_cls
 
         else:
@@ -216,6 +230,7 @@ class ICNet(nn.Module):
             x_124_cls = F.interpolate(
                 x_124_cls, scale_factor=4, mode="bilinear", align_corners=True
             )
+
             return x_124_cls
 
     def _run_backbone_sub2(self, input):
@@ -275,11 +290,3 @@ class ICNet(nn.Module):
                 )
         state_dict.update(model_dict)
         self.load_state_dict(state_dict)
-
-
-if __name__ == "__main__":
-
-    x = torch.Tensor(1, 1, 512, 512)
-    m = ICNet(n_classes=3, in_channels=1).eval()
-    out = m(x)
-    print(out.shape)
