@@ -95,12 +95,14 @@ class Upsample(nn.Module):
         return x
 
 
-def dsn(in_channels, nclass, norm_layer=nn.BatchNorm2d):
+def dsn(in_channels, n_classes, norm_layer=nn.BatchNorm2d):
 
     return nn.Sequential(
         nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1, padding=1),
         norm_layer(in_channels),
         nn.ReLU(),
         nn.Dropout2d(0.1),
-        nn.Conv2d(in_channels, nclass, kernel_size=1, stride=1, padding=0, bias=True),
+        nn.Conv2d(
+            in_channels, n_classes, kernel_size=1, stride=1, padding=0, bias=True
+        ),
     )

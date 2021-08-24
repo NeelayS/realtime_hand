@@ -252,13 +252,7 @@ class FastSCNN(nn.Module):
         if self.aux:
             auxout = self.auxlayer(higher_res_features)
             outputs.append(auxout)
+
             return outputs
 
         return x
-
-
-if __name__ == "__main__":
-    i = torch.Tensor(1, 1, 512, 512)
-    m = FastSCNN(3).eval()
-    o = m(i)
-    print(o.size())

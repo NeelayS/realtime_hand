@@ -43,6 +43,7 @@ class CascadeFeatureFusion(nn.Module):
 class _ICHead(nn.Module):
     def __init__(self, n_classes, norm_layer=nn.BatchNorm2d):
         super(_ICHead, self).__init__()
+
         self.cff_12 = CascadeFeatureFusion(128, 64, 128, n_classes, norm_layer)
         self.cff_24 = CascadeFeatureFusion(256, 256, 128, n_classes, norm_layer)
 
@@ -66,6 +67,7 @@ class _ICHead(nn.Module):
         outputs.append(up_x8)
         # 1 -> 1/4 -> 1/8 -> 1/16
         outputs.reverse()
+
         return outputs
 
 
