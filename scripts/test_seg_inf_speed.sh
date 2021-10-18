@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J TestSegModelsInfSpeed
+#SBATCH -J TestSegModelsInfSpeed.%j
 #SBATCH -N 1
 #SBATCH -o ../outs/segmentation/TestSegModelsInfSpeed.%j.out
 #SBATCH -e ../errs/segmentation/TestSegModelsInfSpeed.%j.err

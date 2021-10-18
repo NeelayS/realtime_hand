@@ -136,10 +136,18 @@ if __name__ == "__main__":
 
         for model_name in SEG_MODELS_REGISTRY.get_list():
 
+            print(f"\nTesting inference for {model_name}")
+
             try:
                 model = SEG_MODELS_REGISTRY.get(model_name)(in_channels=3, n_classes=3)
             except:
                 print(f"{model_name} failed to load")
+                continue
+
+            try:
+                _ = model(torch.randn(1, 3, args.inp_size, args.inp_size))
+            except:
+                print(f"{model_name} doesn't work for the specified input size")
                 continue
 
             test_seg_inference(
