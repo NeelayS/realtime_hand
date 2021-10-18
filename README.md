@@ -48,19 +48,3 @@ This will download the compressed data files, extract them to `segmentation/data
 ```
 tensorboard --logdir=experiments
 ```
-
-<br>
-
-## Model inference times
-
-- Tested on Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
-
-| Model                           | Frames per second |
-| --------------------------------| ------------------|
-| UNet                            |      3.65         |
-| UNet1/8                         |      54.45        |
-| SegNet                          |      3.35         |
-| ModSegNet                       |      10.43        |
-| RefineNet                       |      1.08         |
-| LightWeightRefineNet            |      1.67         |
-| ICNet                           |      3.90         |
