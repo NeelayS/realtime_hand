@@ -133,9 +133,33 @@ dmypy.json
 
 # Data
 *.mp4
+*/*.mp4
 experiments/
 segmentation/data/train_imgs/*
 segmentation/data/bg_imgs/*
+*.png
+*/*.png
+data/
+*/data
+*/data/*
 
 # Model
 model_weights/
+*.pth
+*/*.pth
+
+# Experiment data
+*.err
+errs/
+*/errs/*
+*/errs
+*.out
+outs/
+*/outs/*
+*/outs
+logs/
+*/logs/*
+*/logs
+ckpts/
+*/ckpts/*
+*/ckpts

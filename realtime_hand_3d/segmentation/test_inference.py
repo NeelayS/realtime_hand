@@ -5,8 +5,8 @@ import cv2 as cv
 import torch
 import torch.nn.functional as F
 
-from .models import *
-from .utils import draw_fore_to_back, draw_matting, preprocessing
+from models import *
+from utils import draw_fore_to_back, draw_matting, preprocessing
 
 
 def test_seg_inference(
@@ -73,7 +73,7 @@ def test_seg_inference(
 
     avg_inference_time = sum(inference_times) / len(inference_times)
     fps = 1 / avg_inference_time
-    print(f"The model performs inference at {fps} fps")
+    print(f"{model.__class__.__name__} performs inference at {fps} fps")
 
     if viz:
         out_video.release()
@@ -85,23 +85,19 @@ if __name__ == "__main__":
 
     from argparse import ArgumentParser
 
-    from .models import (
-        CustomSmallUNet,
-        CustomUNet,
-        ICNet,
-        LightWeightRefineNet,
-        ModSegNet,
-        RefineNet,
-        SegNet,
-        SmallUNet,
-        UNet,
-    )
+    from models import SEG_MODELS_REGISTRY
 
     parser = ArgumentParser("Utility to measure inference time of models")
     parser.add_argument(
         "--video", type=str, required=True, help="Video to be used for inference"
     )
-    parser.add_argument("--model", type=str, required=True, help="Model to be used")
+    parser.add_argument("--model", type=str, required=False, help="Model to be used")
+    parser.add_argument(
+        "--all_models",
+        type=bool,
+        required=False,
+        help="Whether to test inference for all models",
+    )
     parser.add_argument(
         "--viz",
         type=bool,
@@ -122,20 +118,30 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    models = {
-        "unet": UNet,
-        "customunet": CustomUNet,
-        "smallunet": SmallUNet,
-        "customsmallunet": CustomSmallUNet,
-        "icnet": ICNet,
-        "refinenet": RefineNet,
-        "refinenetlw": LightWeightRefineNet,
-        "segnet": SegNet,
-        "modsegnet": ModSegNet,
-    }
+    if args.model is None and args.all_models is False:
+        raise Exception(
+            "Please specify either a model name or set the 'all_models' flag to True"
+        )
 
-    model = models[args.model]()
+    if args.model:
 
-    test_seg_inference(
-        args.video, model, args.viz, args.out_dir, args.device, args.inp_size
-    )
+        assert args.model in SEG_MODELS_REGISTRY, "Model not found in registry"
+        model = SEG_MODELS_REGISTRY.get(args.model)(in_channels=3, n_classes=3)
+
+        test_seg_inference(
+            args.video, model, args.viz, args.out_dir, args.device, args.inp_size
+        )
+
+    else:
+
+        for model_name in SEG_MODELS_REGISTRY.get_list():
+
+            try:
+                model = SEG_MODELS_REGISTRY.get(model_name)(in_channels=3, n_classes=3)
+            except:
+                print(f"{model_name} failed to load")
+                continue
+
+            test_seg_inference(
+                args.video, model, args.viz, args.out_dir, args.device, args.inp_size
+            )
