@@ -1,16 +1,14 @@
 import os
 from time import time
-
 import cv2 as cv
 import torch
 import torch.nn.functional as F
 
-from models import *
 from utils import draw_fore_to_back, draw_matting, preprocessing
 
 
 def test_seg_inference(
-    video_path, model, viz=False, out_dir=None, device="cpu", inp_size=320
+    video_path, model, viz=False, out_dir=None, device="cpu", inp_size=512
 ):
 
     video_name = video_path.split("/")[-1]
@@ -25,7 +23,7 @@ def test_seg_inference(
             (int(cap.get(3)), int(cap.get(4))),
         )
 
-    model = model.to(device)
+    model = model.to(torch.device(device))
     model = model.eval()
 
     inference_times = []
@@ -45,6 +43,7 @@ def test_seg_inference(
         X, pad_up, pad_left, h_new, w_new = preprocessing(
             image, expected_size=inp_size, pad_value=0
         )
+        # print(X.shape, pad_up, pad_left, h_new, w_new)
 
         with torch.no_grad():
 
@@ -56,12 +55,12 @@ def test_seg_inference(
 
             infer_end = time()
 
-            mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
-            mask = F.interpolate(mask, size=(H, W), mode="bilinear", align_corners=True)
-            mask = F.softmax(mask, dim=1)
-            mask = mask[0, 1, ...].cpu().numpy()
+            # mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
+            # mask = F.interpolate(mask, size=(H, W), mode="bilinear", align_corners=True)
+            # mask = F.softmax(mask, dim=1)
+            # mask = mask[0, 1, ...].cpu().numpy()
 
-        image_alpha = draw_matting(image, mask)
+        # image_alpha = draw_matting(image, mask)
 
         inference_times.append(infer_end - infer_start)
 
@@ -134,7 +133,7 @@ if __name__ == "__main__":
 
     else:
 
-        for model_name in SEG_MODELS_REGISTRY.get_list():
+        for model_name in sorted(SEG_MODELS_REGISTRY.get_list()):
 
             print(f"\nTesting inference for {model_name}")
 

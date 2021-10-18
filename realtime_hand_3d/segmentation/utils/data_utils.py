@@ -4,7 +4,7 @@ import torch
 
 
 def resize_image(
-    image, expected_size, pad_value, ret_params=False, mode=cv.INTER_LINEAR
+    image, expected_size, pad_value, ret_params=True, mode=cv.INTER_LINEAR
 ):
 
     """

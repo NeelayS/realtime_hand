@@ -24,132 +24,132 @@ from realtime_hand_3d.segmentation.models import (
     UNet,
 )
 
-inp = torch.randn(1, 1, 224, 224)
+inp = torch.randn(2, 3, 512, 512)
 
 # def test_BiSegNet():
 
-#     model = BiSegNet(in_channels=1, n_classes=3).eval()
+#     model = BiSegNet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 def test_CustomICNet():
 
-    model = CustomICNet(in_channels=1, n_classes=3).eval()
+    model = CustomICNet(in_channels=3, n_classes=3).eval()
     out = model(inp)
-    assert out.shape == torch.Size([1, 3, 224, 224])
+    assert out.shape == inp.shape
 
 
 def test_CustomUNet():
 
-    model = CustomUNet(in_channels=1, n_classes=3).eval()
+    model = CustomUNet(in_channels=3, n_classes=3).eval()
     out = model(inp)
-    assert out.shape == torch.Size([1, 3, 224, 224])
+    assert out.shape == inp.shape
 
-    model = CustomSmallUNet(in_channels=1, n_classes=3).eval()
+    model = CustomSmallUNet(in_channels=3, n_classes=3).eval()
     out = model(inp)
-    assert out.shape == torch.Size([1, 3, 224, 224])
+    assert out.shape == inp.shape
 
 
 # def test_DFANet():
 
-#     model = DFANet(in_channels=1, n_classes=3).eval()
+#     model = DFANet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 # def test_DFSegNet(): # Final size
 
-#     model = DFSegNet(in_channels=1, n_classes=3).eval()
+#     model = DFSegNet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
-#     model = DFSegNetV1(in_channels=1, n_classes=3).eval()
+#     model = DFSegNetV1(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
-#     model = DFSegNetV2(in_channels=1, n_classes=3).eval()
+#     model = DFSegNetV2(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 # def test_ESPNet():
 
-#     model = ESPNet(in_channels=1, n_classes=3).eval()
+#     model = ESPNet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 # def test_FastSCNN(): # Final size
 
-#     model = FastSCNN(in_channels=1, n_classes=3).eval()
+#     model = FastSCNN(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 # def test_ICNet():
 
-#     model = ICNet(in_channels=1, n_classes=3).eval()
+#     model = ICNet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 def test_ModSegNet():
 
-    model = ModSegNet(in_channels=1, n_classes=3).eval()
+    model = ModSegNet(in_channels=3, n_classes=3).eval()
     out = model(inp)
-    assert out.shape == torch.Size([1, 3, 224, 224])
+    assert out.shape == inp.shape
 
 
 # def test_PSPNet(): # Final size
 
-#     model = PSPNet_res50(in_channels=1, n_classes=3).eval()
+#     model = PSPNet_res50(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
-#     model = PSPNet_res101(in_channels=1, n_classes=3).eval()
+#     model = PSPNet_res101(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 # def test_RefineNet(): # Final size
 
-#     model = RefineNet(in_channels=1, n_classes=3).eval()
+#     model = RefineNet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 # def test_LightWeightRefineNet(): # Final size
 
-#     model = LightWeightRefineNet(in_channels=1, n_classes=3).eval()
+#     model = LightWeightRefineNet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 def test_SegNet():
 
-    model = SegNet(in_channels=1, n_classes=3).eval()
+    model = SegNet(in_channels=3, n_classes=3).eval()
     out = model(inp)
-    assert out.shape == torch.Size([1, 3, 224, 224])
+    assert out.shape == inp.shape
 
 
 # def test_SwiftNet(): # Final size
 
-#     model = SwiftNetRes18(in_channels=1, n_classes=3, pretrained=False).eval()
+#     model = SwiftNetRes18(in_channels=3, n_classes=3, pretrained=False).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
-#     model = SwiftNetResNet(in_channels=1, n_classes=3).eval()
+#     model = SwiftNetResNet(in_channels=3, n_classes=3).eval()
 #     out = model(inp)
-#     assert out.shape == torch.Size([1, 3, 224, 224])
+#     assert out.shape == inp.shape
 
 
 def test_UNet():
 
-    model = UNet(in_channels=1, n_classes=3).eval()
+    model = UNet(in_channels=3, n_classes=3).eval()
     out = model(inp)
-    assert out.shape == torch.Size([1, 3, 224, 224])
+    assert out.shape == inp.shape
 
-    model = SmallUNet(in_channels=1, n_classes=3).eval()
+    model = SmallUNet(in_channels=3, n_classes=3).eval()
     out = model(inp)
-    assert out.shape == torch.Size([1, 3, 224, 224])
+    assert out.shape == inp.shape

@@ -123,5 +123,5 @@ class CustomICNet(nn.Module):
         return res
 
 
-def icnet(in_channels=1, n_classes=3):
+def icnet(in_channels=3, n_classes=3):
     return CustomICNet(in_channels=in_channels, n_classes=n_classes)

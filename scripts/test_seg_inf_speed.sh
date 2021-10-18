@@ -12,7 +12,7 @@ cd ../realtime_hand_3d/segmentation
 python test_inference.py --video ../../data/segmentation/test.mp4 \
                          # --model UNet \
                          --all_models True \  
-                         --device 0 \
+                         --device "cuda:0" \
                          --inp_size 512 \
                          --viz False \
                          --out_dir "." \
