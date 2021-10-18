@@ -23,9 +23,10 @@ def fetch_model(model_name, n_classes, in_channels):
 
     return model
 
+
 def fetch_trainer(model_name):
 
-    trainer = models.__dict__[model_name+"Trainer"]
+    trainer = models.__dict__[model_name + "Trainer"]
 
     return trainer
 
