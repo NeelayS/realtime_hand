@@ -1,46 +1,43 @@
-from setuptools import setup, find_packages
-from codecs import open
-from os import path
+#!/usr/bin/env python
 
-HERE = path.abspath(path.dirname(__file__))
-REQUIRE_PATH = "requirements.txt"
+"""The setup script."""
 
-with open(path.join(HERE, "README.md"), encoding="utf-8") as f:
-    long_description = f.read()
+from setuptools import find_packages, setup
 
+with open("README.md") as readme_file:
+    readme = readme_file.read()
 
-def get_requires(path=REQUIRE_PATH):
-    """
-    generates requirements from file path given as REQUIRE_PATH
-    """
-    for line in open(path).read().splitlines():
-        line = line.strip()
-        if line and not line.startswith("#"):
-            yield line
+requirements = []
 
+test_requirements = [
+    "pytest>=3",
+]
 
 setup(
-    name="realtime_hand_3d",
-    version="0.1.0",
-    description="Real-time had shape and pose in RGB videos",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="realtime_hand_3d.readthedocs.io/",
     author="Neelay Shah",
     author_email="nstraum1@gmail.com",
-    license="MIT",
+    python_requires=">=3.6",
     classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python",
+        "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Operating System :: OS Independent",
     ],
-    packages=find_packages(),
+    description="Real-time hand pose and shape estimation in RGB videos",
+    install_requires=requirements,
+    license="MIT license",
+    long_description=readme,
     include_package_data=True,
-    install_requires=list(get_requires()),
+    keywords="realtime_hand_3d",
+    name="realtime_hand_3d",
+    packages=find_packages(include=["realtime_hand_3d", "realtime_hand_3d.*"]),
+    test_suite="tests",
+    tests_require=test_requirements,
+    url="https://github.com/NeelayS/realtime_hand_3d",
+    version="0.1.0",
+    zip_safe=False,
 )
