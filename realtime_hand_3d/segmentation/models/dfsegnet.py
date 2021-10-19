@@ -222,9 +222,11 @@ class DFSegNet(nn.Module):
 
         return out
 
+
 @SEG_MODELS_REGISTRY.register()
 def DFSegNetV1(n_classes=3):
     return DFSegNet(n_classes=n_classes, type="dfv1")
+
 
 @SEG_MODELS_REGISTRY.register()
 def DFSegNetV2(n_classes=3):

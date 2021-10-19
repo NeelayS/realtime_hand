@@ -2,6 +2,17 @@
 Adapted from Detectron2 (https://github.com/facebookresearch/detectron2)
 """
 
+from torch.optim import SGD, Adadelta, Adagrad, Adam, AdamW, RMSprop
+from torch.optim.lr_scheduler import (
+    CosineAnnealingLR,
+    CosineAnnealingWarmRestarts,
+    CyclicLR,
+    MultiStepLR,
+    OneCycleLR,
+    ReduceLROnPlateau,
+    StepLR,
+)
+
 
 class Registry:
     def __init__(self, name):
@@ -52,3 +63,23 @@ class Registry:
 
     def __iter__(self):
         return iter(self._obj_map.items())
+
+
+optimizers = Registry("optimizers")
+schedulers = Registry("schedulers")
+
+
+optimizers.register(SGD, "SGD")
+optimizers.register(Adam, "Adam")
+optimizers.register(AdamW, "AdamW")
+optimizers.register(Adagrad, "Adagrad")
+optimizers.register(Adadelta, "Adadelta")
+optimizers.register(RMSprop, "RMSprop")
+
+schedulers.register(CosineAnnealingLR, "CosineAnnealingLR")
+schedulers.register(CosineAnnealingWarmRestarts, "CosineAnnealingWarmRestarts")
+schedulers.register(CyclicLR, "CyclicLR")
+schedulers.register(MultiStepLR, "MultiStepLR")
+schedulers.register(ReduceLROnPlateau, "ReduceLROnPlateau")
+schedulers.register(StepLR, "StepLR")
+schedulers.register(OneCycleLR, "OneCycleLR")

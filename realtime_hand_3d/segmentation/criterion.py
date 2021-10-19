@@ -4,10 +4,10 @@ import torch.nn.functional as F
 
 from realtime_hand_3d.utils import Registry
 
-CRITERION_REGISTRY = Registry("CRITERION")
+SEG_CRITERION_REGISTRY = Registry("CRITERION")
 
 
-@CRITERION_REGISTRY.register()
+@SEG_CRITERION_REGISTRY.register()
 class OhemCrossEntropy2dTensor(nn.Module):
     def __init__(
         self,
@@ -88,7 +88,7 @@ class OhemCrossEntropy2dTensor(nn.Module):
         return self.criterion(pred, target)
 
 
-@CRITERION_REGISTRY.register()
+@SEG_CRITERION_REGISTRY.register()
 class CriterionDSN(nn.CrossEntropyLoss):
     def __init__(self, ignore_index=255, reduce=True):
         super(CriterionDSN, self).__init__()
@@ -120,7 +120,7 @@ class CriterionDSN(nn.CrossEntropyLoss):
         return loss1 + loss2 * 0.4
 
 
-@CRITERION_REGISTRY.register()
+@SEG_CRITERION_REGISTRY.register()
 class CriterionOhemDSN(nn.Module):
     def __init__(self, ignore_index=255, thresh=0.7, min_kept=100000, reduce=True):
         super(CriterionOhemDSN, self).__init__()
@@ -151,7 +151,7 @@ class CriterionOhemDSN(nn.Module):
         return loss1 + loss2 * 0.4
 
 
-@CRITERION_REGISTRY.register()
+@SEG_CRITERION_REGISTRY.register()
 class CriterionDFANet(nn.Module):
     def __init__(self, ignore_index=255, thresh=0.7, min_kept=100000, reduce=True):
         super(CriterionDFANet, self).__init__()
@@ -188,7 +188,7 @@ class CriterionDFANet(nn.Module):
         return loss1 + 0.4 * loss2 + 0.4 * loss3
 
 
-@CRITERION_REGISTRY.register()
+@SEG_CRITERION_REGISTRY.register()
 class CriterionICNet(nn.Module):
     def __init__(self, ignore_index=255, thresh=0.7, min_kept=100000, reduce=True):
         super(CriterionICNet, self).__init__()
@@ -227,7 +227,7 @@ class CriterionICNet(nn.Module):
         return loss1 + 0.4 * loss2 + 0.4 * loss3 + 0.4 * loss4
 
 
-@CRITERION_REGISTRY.register()
+@SEG_CRITERION_REGISTRY.register()
 class ModCriterionICNet(nn.Module):
     def __init__(self, ignore_index=255, thresh=0.7, min_kept=100000, reduce=True):
         super(ModCriterionICNet, self).__init__()
@@ -261,7 +261,7 @@ class ModCriterionICNet(nn.Module):
         return loss1 + 0.4 * loss2 + 0.4 * loss3
 
 
-MODEL_CRITERIONS = {
+SEG_MODEL_CRITERIONS = {
     "BiSegNet": "CriterionDSN",
     "DFANet": "CriterionDFANet",
     "DFSegNet": "CriterionDSN",
