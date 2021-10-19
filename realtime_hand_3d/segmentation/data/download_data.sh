@@ -8,8 +8,13 @@ curl -L https://byu.box.com/shared/static/moy2j92p9j9tv8mw8c1dgafn4r4pod19 --out
 curl -L https://byu.box.com/shared/static/jdto18tt4q89pdmn2l2wiiics2ltdr54 --output train2.tar
 curl -L https://byu.box.com/shared/static/0yj1iqlsmt7aw7odp3ns50e39nmer4vo --output train3.tar
 curl -L https://byu.box.com/shared/static/fr3lcjscu5xit6qbyqdooy6pi6uyk1q3 --output train4.tar
+curl -L https://byu.box.com/shared/static/ys2a83r8iga0tlh7aogesc1g1i49jsur --output eval.tar
 
 # Extract files and delete 
+
+mkdir -p ./bg_imgs
+mkdir -p ./train_imgs
+mkdir -p ./eval_imgs
 
 tar -xvf bg.tar -C ./bg_imgs
 rm -rf bg.tar
@@ -25,3 +30,6 @@ rm -rf train3.tar
 
 tar -xvf train4.tar -C ./train_imgs
 rm -rf train4.tar
+
+tar -xvf eval.tar -C ./eval_imgs
+rm -rf eval.tar
