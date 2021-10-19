@@ -8,7 +8,6 @@ from .blocks import BasicBlock, conv3x3, dsn
 from .retrieve import SEG_MODELS_REGISTRY
 
 
-@SEG_MODELS_REGISTRY.register()
 class DFNetV1(nn.Module):
     def __init__(self, in_channels=1, n_classes=1000):
         super(DFNetV1, self).__init__()
@@ -70,7 +69,6 @@ class DFNetV1(nn.Module):
         return x3, x4, x5
 
 
-@SEG_MODELS_REGISTRY.register()
 class DFNetV2(nn.Module):
     def __init__(self, in_channels=1, n_classes=1000):
         super(DFNetV2, self).__init__()
@@ -224,10 +222,10 @@ class DFSegNet(nn.Module):
 
         return out
 
-
+@SEG_MODELS_REGISTRY.register()
 def DFSegNetV1(n_classes=3):
     return DFSegNet(n_classes=n_classes, type="dfv1")
 
-
+@SEG_MODELS_REGISTRY.register()
 def DFSegNetV2(n_classes=3):
     return DFSegNet(n_classes, type="dfv2")
