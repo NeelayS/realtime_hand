@@ -140,8 +140,8 @@ segmentation/data/bg_imgs/*
 *.png
 */*.png
 data/
-*/data
-*/data/*
+# */data
+# */data/*
 
 # Model
 model_weights/

@@ -1,3 +1,4 @@
+from .criterion import *
 from .data import Ego2HandsDataset
 from .models import *
 from .predict import SegPredictor

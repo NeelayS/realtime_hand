@@ -5,16 +5,15 @@ from copy import deepcopy
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 from torchmetrics import IoU
 
-from .criterion import SEG_MODEL_CRITERIONS, SEG_CRITERION_REGISTRY
-from .dataset import Ego2HandsDataset
-from .models import SEG_MODELS_REGISTRY
-from .utils import AverageMeter, Config
+from realtime_hand_3d.segmentation.criterion import SEG_MODEL_CRITERIONS, SEG_CRITERION_REGISTRY
+from realtime_hand_3d.segmentation.data import Ego2HandsDataset
+from realtime_hand_3d.segmentation.models import SEG_MODELS_REGISTRY
+from realtime_hand_3d.segmentation.utils import AverageMeter, Config
 from realtime_hand_3d.utils import optimizers, schedulers
 
 
@@ -516,7 +515,7 @@ if __name__ == "__main__":
         default=False,
         help="Whether to do distributed training",
     )
-    parser.add_argument("--lr", type=float, required=False, help="Learning rate")
+    parser.add_argument("--lr", required=False, help="Learning rate")
     parser.add_argument(
         "--resume",
         type=bool,
