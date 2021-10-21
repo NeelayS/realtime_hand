@@ -7,6 +7,12 @@ import torch.nn.functional as F
 from .utils import draw_fore_to_back, draw_matting, preprocessing
 
 
+def warmup(model, device, inp_size=512):
+
+    inp = torch.rand(1, 3, inp_size, inp_size).to(device)
+    model(inp)
+
+
 def test_seg_inference(
     video_path, model, viz=False, out_dir=None, device="cpu", inp_size=512
 ):
@@ -25,6 +31,8 @@ def test_seg_inference(
 
     model = model.to(torch.device(device))
     model = model.eval()
+
+    warmup(model, device, inp_size)
 
     inference_times = []
 
@@ -48,23 +56,31 @@ def test_seg_inference(
 
             X = X.to(device)
 
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+
             infer_start = time()
 
-            mask = model(X)
+            pred = model(X)
+            pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)
+
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
 
             infer_end = time()
+            inference_times.append(infer_end - infer_start)
 
-            mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
-            mask = F.interpolate(mask, size=(H, W), mode="bilinear", align_corners=True)
-            mask = F.softmax(mask, dim=1)
-            mask = mask[0, 1, ...].cpu().numpy()
+            # mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
 
-        image_alpha = draw_matting(image, mask)
+            mask = F.softmax(pred, dim=1)
+            assert mask.shape[-2:] == (H, W), "Prediction shape is not correct"
 
-        inference_times.append(infer_end - infer_start)
+            # mask = mask[0, 1, ...].cpu().numpy()
 
-        if viz:
-            out_video.write(image_alpha)
+        # image_alpha = draw_matting(image, mask)
+
+        # if viz:
+        #     out_video.write(image_alpha)
 
         if cv.waitKey(1) & 0xFF == ord("q"):
             break
@@ -83,7 +99,7 @@ if __name__ == "__main__":
 
     from argparse import ArgumentParser
 
-    from models import SEG_MODELS_REGISTRY
+    from .models import SEG_MODELS_REGISTRY
 
     parser = ArgumentParser("Utility to measure inference time of models")
     parser.add_argument(
@@ -134,6 +150,10 @@ if __name__ == "__main__":
 
         for model_name in sorted(SEG_MODELS_REGISTRY.get_list()):
 
+            if model_name in ("BiSegNet", "ESPNet", "DFANet", "CustomICNet"):
+                print(f"Skipping {model_name}\n")
+                continue
+
             print(f"\nTesting inference for {model_name}")
 
             try:
@@ -143,7 +163,9 @@ if __name__ == "__main__":
                 continue
 
             try:
-                _ = model(torch.randn(1, 3, args.inp_size, args.inp_size))
+                inp = torch.randn(2, 3, args.inp_size, args.inp_size)
+                # print(inp.shape)
+                _ = model(inp)
             except:
                 print(f"{model_name} doesn't work for the specified input size")
                 continue

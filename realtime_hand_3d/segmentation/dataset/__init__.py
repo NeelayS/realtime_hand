@@ -1,1 +1,1 @@
-from .dataset import Ego2HandsDataset
+from .ego2hands import Ego2HandsDataset

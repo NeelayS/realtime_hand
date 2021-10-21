@@ -130,9 +130,13 @@ dmypy.json
 
 # Random
 t.py
+*/t.py
 temp.py
+*/temp.py
 temp/
+*/temp/*
 t.sh
+*/t.sh
 temp.sh
 
 # Data
@@ -144,8 +148,8 @@ segmentation/data/bg_imgs/*
 *.png
 */*.png
 data/
-# */data
-# */data/*
+*/data
+*/data/*
 
 # Model
 model_weights/

@@ -160,7 +160,10 @@ class ICNet(nn.Module):
             )
 
             self.backbone = get_resnet(
-                n_layers, output_stride=self.backbone_os, n_classes=n_classes, in_channels=in_channels
+                n_layers,
+                output_stride=self.backbone_os,
+                n_classes=n_classes,
+                in_channels=in_channels,
             )
             self.ppm = PyramidPoolingModule(pyramids=self.pyramids)
             self.conv_sub4_reduce = ConvBlock(
@@ -428,7 +431,12 @@ class ResNet(nn.Module):
             raise NotImplementedError
 
         self.conv1 = nn.Conv2d(
-            in_channels, self.basic_inplanes, kernel_size=7, stride=2, padding=3, bias=False
+            in_channels,
+            self.basic_inplanes,
+            kernel_size=7,
+            stride=2,
+            padding=3,
+            bias=False,
         )
         self.bn1 = nn.BatchNorm2d(self.basic_inplanes)
         self.relu = nn.ReLU(inplace=True)
