@@ -7,6 +7,13 @@ from torch.utils.data import Dataset
 from .utils import *
 
 
+def normalize_tensor(tensor, mean, std):
+
+    for t in tensor:
+        t.sub_(mean).div_(std)
+
+    return tensor
+
 class Ego2HandsDataset(Dataset):
 
     LEFT_IDX = 1
