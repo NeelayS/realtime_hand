@@ -188,7 +188,6 @@ class FusionNode(nn.Module):
         return res
 
 
-@SEG_MODELS_REGISTRY.register()
 class DFSegNet(nn.Module):
     def __init__(self, in_channels=1, n_classes=3, type="dfv1"):
         super(DFSegNet, self).__init__()

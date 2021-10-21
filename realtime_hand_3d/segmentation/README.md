@@ -1,16 +1,20 @@
 ## Segmentation models inference times
 
-- Tested on Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+- Tested on a V100 GPU at 512x512 input image resolution
 
-| Model                           | Frames per second |
-| --------------------------------| ------------------|
-| UNet                            |      3.65         |
-| UNet1/8                         |      54.45        |
-| SegNet                          |      3.35         |
-| ModSegNet                       |      10.43        |
-| RefineNet                       |      1.08         |
-| LightWeightRefineNet            |      1.67         |
-| ICNet                           |      3.90         |
+| Model                           | Frames per second | Output resolution (relative to input)   |
+| --------------------------------| ------------------| --------------------------------------- |
+| UNet1/8                         |      387.80       |                 1                       |
+| SwiftNet                        |      281.57       |                 1/4                     |
+| FastSCNN                        |      219.96       |                 1/8                     |
+| ICNet                           |      205.55       |                 1/8                     |
+| ModSegNet                       |      183.29       |                 1                       |
+| DFSegNet                        |      165.71       |                 1/8                     |
+| SegNet                          |      68.43        |                 1                       |
+| UNet                            |      65.52        |                 1                       |
+| LightWeightRefineNet            |      50.90        |                 1/4                     |
+| PSPNet                          |      28.32        |                 1/8                     |
+| RefineNet                       |      28.05        |                 1/4                     |
 
 
 

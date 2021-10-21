@@ -81,9 +81,6 @@ class Upsample(nn.Module):
     def __init__(self, num_maps_in, skip_maps_in, num_maps_out, use_bn=True, k=3):
         super(Upsample, self).__init__()
 
-        print(
-            f"Upsample layer: in = {num_maps_in}, skip = {skip_maps_in}, out = {num_maps_out}"
-        )
         self.bottleneck = BNReluConv(skip_maps_in, num_maps_in, k=1, batch_norm=use_bn)
         self.blend_conv = BNReluConv(num_maps_in, num_maps_out, k=k, batch_norm=use_bn)
 
@@ -183,7 +180,6 @@ class SpatialPyramidPooling(nn.Module):
         return x
 
 
-@SEG_MODELS_REGISTRY.register()
 class SwiftNetResNet(nn.Module):
     def __init__(
         self,

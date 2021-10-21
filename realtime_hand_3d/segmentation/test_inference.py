@@ -63,6 +63,7 @@ def test_seg_inference(
 
             pred = model(X)
             pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)
+            mask = F.softmax(pred, dim=1)
 
             if torch.cuda.is_available():
                 torch.cuda.synchronize()
@@ -72,7 +73,6 @@ def test_seg_inference(
 
             # mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
 
-            mask = F.softmax(pred, dim=1)
             assert mask.shape[-2:] == (H, W), "Prediction shape is not correct"
 
             # mask = mask[0, 1, ...].cpu().numpy()
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         for model_name in sorted(SEG_MODELS_REGISTRY.get_list()):
 
             if model_name in ("BiSegNet", "ESPNet", "DFANet", "CustomICNet"):
-                print(f"Skipping {model_name}\n")
+                print(f"\nSkipping {model_name}")
                 continue
 
             print(f"\nTesting inference for {model_name}")
@@ -167,7 +167,7 @@ if __name__ == "__main__":
                 # print(inp.shape)
                 _ = model(inp)
             except:
-                print(f"{model_name} doesn't work for the specified input size")
+                print(f"\n{model_name} doesn't work for the specified input size")
                 continue
 
             test_seg_inference(
