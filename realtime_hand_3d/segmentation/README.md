@@ -2,7 +2,7 @@
 
 - Tested on a V100 GPU at 512x512 input image resolution
 
-| Model                           | Frames per second | Output resolution (relative to input)   |
+| Model                           | Frames per second | Output resolution before interpolation (relative to input)   |
 | --------------------------------| ------------------| --------------------------------------- |
 | UNet1/8                         |      387.80       |                 1                       |
 | SwiftNet                        |      281.57       |                 1/4                     |

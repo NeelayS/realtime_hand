@@ -117,7 +117,10 @@ class SegTrainer:
 
         if loss_fn is None:
 
-            if self.model_name in SEG_MODEL_CRITERIONS.keys():
+            if (
+                self.model_name in SEG_MODEL_CRITERIONS.keys()
+                and self.cfg.criterion.use_custom
+            ):
                 loss = SEG_CRITERION_REGISTRY[SEG_MODEL_CRITERIONS[self.model_name]]
             else:
                 loss = nn.CrossEntropyLoss
@@ -151,6 +154,8 @@ class SegTrainer:
                     scheduler = sched(optimizer, **self.cfg.SCHEDULER.PARAMS)
                 else:
                     scheduler = sched(optimizer)
+
+        self.metric_fn = IoU(num_classes=self.cfg.n_classes).to(self.device)
 
         return loss_fn, optimizer, scheduler
 
@@ -357,8 +362,6 @@ class SegTrainer:
 
         model.eval()
 
-        metric_fn = IoU(num_classes=self.cfg.n_classes)
-
         metric_meter = AverageMeter()
         loss_meter = AverageMeter()
 
@@ -377,7 +380,7 @@ class SegTrainer:
                 loss = self._calculate_loss(pred, mask)
                 loss_meter.update(loss.item())
 
-                metric = metric_fn(pred, mask)
+                metric = self.metric_fn(pred, mask)
                 metric_meter.update(metric.item())
 
         model.train()

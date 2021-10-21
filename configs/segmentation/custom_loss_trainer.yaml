@@ -28,7 +28,7 @@ scheduler:
     mode: "min"
     verbose: True
 criterion:
-  use_custom: False
+  use_custom: True
   name: "CrossEntropyLoss"
   params: null
 device: 0

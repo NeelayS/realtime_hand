@@ -14,6 +14,7 @@ def normalize_tensor(tensor, mean, std):
 
     return tensor
 
+
 class Ego2HandsDataset(Dataset):
 
     LEFT_IDX = 1

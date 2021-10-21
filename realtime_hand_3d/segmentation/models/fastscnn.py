@@ -249,10 +249,12 @@ class FastSCNN(nn.Module):
         x = self.global_feature_extractor(higher_res_features)
         x = self.feature_fusion(higher_res_features, x)
         x = self.classifier(x)
+
         outputs = []
         outputs.append(x)
 
         if self.aux:
+
             auxout = self.auxlayer(higher_res_features)
             outputs.append(auxout)
 

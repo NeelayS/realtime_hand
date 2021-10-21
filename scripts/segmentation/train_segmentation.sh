@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -J TrainSegModels-ICNet.%j
+#SBATCH -J TrainSegModels-FastSCNN.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/TrainSegModels-ICNet.%j.out
-#SBATCH -e ../../errs/segmentation/TrainSegModels-ICNet.%j.err
-#SBATCH -t 12:00:00
+#SBATCH -o ../../outs/segmentation/TrainSegModels-FastSCNN.%j.out
+#SBATCH -e ../../errs/segmentation/TrainSegModels-FastSCNN.%j.err
+#SBATCH -t 24:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:V100:1
 
@@ -11,14 +11,15 @@
 # device=$2
 
 train_cfg="configs/segmentation/base_trainer.yaml"
-model="ICNet"
-img_dir="data/segmentation/Ego2Hands/train_imgs"  #  "../imgs/temp/train"
+model="FastSCNN"
+img_dir="data/segmentation/Ego2Hands/train_imgs/0"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/ICNet"
-ckpt_dir="ckpts/segmentation/ICNet"
+log_dir="logs/segmentation/FastSCNN"
+ckpt_dir="ckpts/segmentation/FastSCNN"
 epochs=5 # 10
 device="0"
-resume_ckpt="ckpts/segmentation/ICNet/ICNet_epoch_10.pth"
+
+resume_ckpt="ckpts/segmentation/FastSCNN/FastSCNN_epoch_10.pth"
 resume_epochs=10
 n_classes=3
 in_channels=1
@@ -26,8 +27,7 @@ in_channels=1
 cd ../..
 module load nvidia/10.2
 
-# python -m realtime_hand_3d.segmentation.seg_trainer \
-python realtime_hand_3d/segmentation/seg_trainer.py \
+python -m realtime_hand_3d.segmentation.seg_trainer \
     --train_cfg $train_cfg \
     --model $model \
     --img_dir $img_dir \
