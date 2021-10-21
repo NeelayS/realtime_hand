@@ -10,7 +10,10 @@ from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 from torchmetrics import IoU
 
-from realtime_hand_3d.segmentation.criterion import SEG_MODEL_CRITERIONS, SEG_CRITERION_REGISTRY
+from realtime_hand_3d.segmentation.criterion import (
+    SEG_MODEL_CRITERIONS,
+    SEG_CRITERION_REGISTRY,
+)
 from realtime_hand_3d.segmentation.data import Ego2HandsDataset
 from realtime_hand_3d.segmentation.models import SEG_MODELS_REGISTRY
 from realtime_hand_3d.segmentation.utils import AverageMeter, Config
@@ -51,6 +54,8 @@ class SegTrainer:
             device = ",".join(map(str, device))
 
         print("\n")
+
+        self.model_parallel = False
 
         if device == "-1" or device == -1 or device == "cpu":
             device = torch.device("cpu")
@@ -126,6 +131,8 @@ class SegTrainer:
             else:
                 loss_fn = loss()
 
+        self.loss_fn = loss_fn
+
         if optimizer is None:
 
             opt = optimizers.get(self.cfg.optimizer.name)
@@ -161,6 +168,12 @@ class SegTrainer:
 
         return img, mask
 
+    def _calculate_loss(self, pred, target):
+
+        pred, target = self._interpolate(pred, target)
+
+        return self.loss_fn(pred, target)
+
     def _train_model(self, loss_fn, optimizer, scheduler, n_epochs, start_epoch=None):
 
         writer = SummaryWriter(log_dir=self.cfg.log_dir)
@@ -186,18 +199,16 @@ class SegTrainer:
             print("-" * 80)
 
             epoch_loss.reset()
-            for iteration, (inp, target) in enumerate(self.train_loader):
+            for iteration, (img, mask) in enumerate(self.train_loader):
 
-                img1, img2 = inp
-                img1, img2, target = (
-                    img1.to(self.device),
-                    img2.to(self.device),
-                    target.to(self.device),
+                img, mask = (
+                    img.to(self.device),
+                    mask.to(self.device),
                 )
 
-                pred = model(img1, img2)
+                pred = model(img)
 
-                loss = loss_fn(pred, target)
+                loss = self._calculate_loss(pred, mask)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -219,6 +230,48 @@ class SegTrainer:
                     print(
                         f"Epoch iterations: {iteration}, Total iterations: {total_iters}, Average batch training loss: {epoch_loss.avg}"
                     )
+
+                    new_avg_val_loss, new_avg_val_metric = self._validate_model(model)
+
+                    if new_avg_val_loss < min_avg_val_loss:
+
+                        min_avg_val_loss = new_avg_val_loss
+                        print("New minimum average validation loss!")
+
+                        if self.cfg.validate_on.lower() == "loss":
+                            best_model = deepcopy(model)
+                            save_best_model = (
+                                best_model.module if self.model_parallel else best_model
+                            )
+                            torch.save(
+                                save_best_model.state_dict(),
+                                os.path.join(
+                                    self.cfg.ckpt_dir, self.model_name + "_best.pth"
+                                ),
+                            )
+                            print(
+                                f"Saved new best model at epoch {epochs+1}, iteration {iteration}!"
+                            )
+
+                    if new_avg_val_metric < min_avg_val_metric:
+
+                        min_avg_val_metric = new_avg_val_metric
+                        print("New minimum average validation metric!")
+
+                        if self.cfg.validate_on.lower() == "metric":
+                            best_model = deepcopy(model)
+                            save_best_model = (
+                                best_model.module if self.model_parallel else best_model
+                            )
+                            torch.save(
+                                save_best_model.state_dict(),
+                                os.path.join(
+                                    self.cfg.ckpt_dir, self.model_name + "_best.pth"
+                                ),
+                            )
+                            print(
+                                f"Saved new best model at epoch {epochs+1}, iteration {iteration}!"
+                            )
 
             print(f"\nEpoch {epochs+1}: Training loss = {epoch_loss.sum}")
             writer.add_scalar("epochs_training_loss", epoch_loss.sum, epochs + 1)
@@ -277,6 +330,8 @@ class SegTrainer:
 
                 if self.model_parallel:
                     save_model = model.module
+                else:
+                    save_model = model
 
                 consolidated_save_dict = {
                     "model_state_dict": save_model.state_dict(),
@@ -321,9 +376,9 @@ class SegTrainer:
                     pred = pred[-1]
 
                 if pred.shape[-2:] != mask.shape[-2:]:
-                    pred = self._interpolate(pred, mask.shape[-2:])
+                    pred, mask = self._interpolate(pred, mask, mask.shape[-2:])
 
-                loss = self.loss_fn(pred, mask)
+                loss = self._calculate_loss(pred, mask)
                 loss_meter.update(loss.item())
 
                 metric = metric_fn(pred, mask)
@@ -558,9 +613,9 @@ if __name__ == "__main__":
         args.model, n_classes=args.n_classes, in_channels=args.in_channels
     )
 
-    trainer = SegTrainer(model, args.config, args.img_dir, args.bg_dir, args.device)
+    trainer = SegTrainer(model, training_cfg, args.img_dir, args.bg_dir, args.device)
 
-    if args.resume:
+    if args.resume is True:
         assert (
             args.resume_ckpt is not None
         ), "Please provide a ckpt to resume training from"

@@ -129,7 +129,11 @@ dmypy.json
 .pyre/
 
 # Random
-
+t.py
+temp.py
+temp/
+t.sh
+temp.sh
 
 # Data
 *.mp4

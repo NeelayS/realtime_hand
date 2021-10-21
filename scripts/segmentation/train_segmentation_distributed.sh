@@ -1,24 +1,24 @@
 #!/bin/bash
-#SBATCH -J TrainSegModels-ICNet.%j
+#SBATCH -J TrainSegModels-FastSCNN_d.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/TrainSegModels-ICNet.%j.out
-#SBATCH -e ../../errs/segmentation/TrainSegModels-ICNet.%j.err
+#SBATCH -o ../../outs/segmentation/TrainSegModels-FastSCNN_d.%j.out
+#SBATCH -e ../../errs/segmentation/TrainSegModels-FastSCNN_d.%j.err
 #SBATCH -t 12:00:00
 #SBATCH --mem=16G
-#SBATCH --gres=gpu:V100:1
+#SBATCH --gres=gpu:V100:4
 
 # model=$1
 # device=$2
 
 train_cfg="configs/segmentation/base_trainer.yaml"
-model="ICNet"
+model="FastSCNN"
 img_dir="data/segmentation/Ego2Hands/train_imgs"  #  "../imgs/temp/train"
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/ICNet"
-ckpt_dir="ckpts/segmentation/ICNet"
+log_dir="logs/segmentation/FastSCNN_d"
+ckpt_dir="ckpts/segmentation/FastSCNN_d"
 epochs=5 # 10
-device="0"
-resume_ckpt="ckpts/segmentation/ICNet/ICNet_epoch_10.pth"
+device="all"
+resume_ckpt="ckpts/segmentation/FastSCNN_d/FastSCNN_epoch_10.pth"
 resume_epochs=10
 n_classes=3
 in_channels=1
@@ -37,8 +37,8 @@ python realtime_hand_3d/segmentation/seg_trainer.py \
     --epochs $epochs \
     --device $device \
     --n_classes $n_classes \
-    --in_channels $in_channels 
-    # --distributed False \
+    --in_channels $in_channels \
+    --distributed True \
     # --resume False \
     # --resume_ckpt $resume_ckpt \
     # --resume_epochs $resume_epochs \

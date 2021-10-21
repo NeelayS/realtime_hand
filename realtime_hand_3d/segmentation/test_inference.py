@@ -2,9 +2,12 @@ import os
 from time import time
 import cv2 as cv
 import torch
-import torch.nn.functional as F
 
-from utils import draw_fore_to_back, draw_matting, preprocessing
+from realtime_hand_3d.segmentation.utils import (
+    draw_fore_to_back,
+    draw_matting,
+    preprocessing,
+)
 
 
 def test_seg_inference(
@@ -54,17 +57,17 @@ def test_seg_inference(
 
             infer_end = time()
 
-            mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
-            mask = F.interpolate(mask, size=(H, W), mode="bilinear", align_corners=True)
-            mask = F.softmax(mask, dim=1)
-            mask = mask[0, 1, ...].cpu().numpy()
+        #     mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
+        #     mask = F.interpolate(mask, size=(H, W), mode="bilinear", align_corners=True)
+        #     mask = F.softmax(mask, dim=1)
+        #     mask = mask[0, 1, ...].cpu().numpy()
 
-        image_alpha = draw_matting(image, mask)
+        # image_alpha = draw_matting(image, mask)
 
         inference_times.append(infer_end - infer_start)
 
-        if viz:
-            out_video.write(image_alpha)
+        # if viz:
+        #     out_video.write(image_alpha)
 
         if cv.waitKey(1) & 0xFF == ord("q"):
             break

@@ -9,7 +9,7 @@ in_channels: 1
 
 # Training
 
-batch_size: 16
+batch_size: 32
 n_epochs: 10
 eval_interval: 1
 optimizer: 
@@ -41,7 +41,7 @@ validate_on: loss
 # Logging and checkpointing
 
 log_dir: "./logs"
-log_iterations_interval: 1000
+log_iterations_interval: 100
 ckpt_dir: "./ckpts"
 ckpt_interval: 1
 
