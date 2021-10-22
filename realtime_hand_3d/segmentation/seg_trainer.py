@@ -41,7 +41,7 @@ class SegTrainer:
             device = self.cfg.device
 
         self.model = model
-        self.model_name = model.__class__.__name__.lower()
+        self.model_name = model.__class__.__name__
         self._setup_model(model, device)
 
     def _setup_model(self, model, device):
@@ -93,7 +93,11 @@ class SegTrainer:
     def _make_dataloader(self):
 
         dataset = Ego2HandsDataset(
-            self.img_dir, self.bg_dir, self.cfg.with_arms, self.cfg.input_edge
+            self.img_dir,
+            self.bg_dir,
+            self.cfg.grayscale,
+            self.cfg.with_arms,
+            self.cfg.input_edge,
         )
 
         val_size = math.floor(self.cfg.val_split_ratio * len(dataset))
@@ -121,7 +125,7 @@ class SegTrainer:
                 self.model_name in SEG_MODEL_CRITERIONS.keys()
                 and self.cfg.criterion.use_custom
             ):
-                loss = SEG_CRITERION_REGISTRY[SEG_MODEL_CRITERIONS[self.model_name]]
+                loss = SEG_CRITERION_REGISTRY.get(SEG_MODEL_CRITERIONS[self.model_name])
             else:
                 loss = nn.CrossEntropyLoss
 
@@ -171,7 +175,8 @@ class SegTrainer:
 
     def _calculate_loss(self, pred, target):
 
-        pred, target = self._interpolate(pred, target)
+        if not self.cfg.criterion.use_custom:
+            pred, target = self._interpolate(pred, target)
 
         return self.loss_fn(pred, target)
 
@@ -362,6 +367,8 @@ class SegTrainer:
 
         model.eval()
 
+        loss_fn = nn.CrossEntropyLoss()
+
         metric_meter = AverageMeter()
         loss_meter = AverageMeter()
 
@@ -372,12 +379,12 @@ class SegTrainer:
                 pred = model(img)
 
                 if isinstance(pred, tuple) or isinstance(pred, list):
-                    pred = pred[-1]
+                    pred = pred[0]
 
                 if pred.shape[-2:] != mask.shape[-2:]:
                     pred, mask = self._interpolate(pred, mask, mask.shape[-2:])
 
-                loss = self._calculate_loss(pred, mask)
+                loss = loss_fn(pred, mask)
                 loss_meter.update(loss.item())
 
                 metric = self.metric_fn(pred, mask)
@@ -412,7 +419,7 @@ class SegTrainer:
         print(self.cfg)
         print("-" * 80)
 
-        print(f"Training {self.model_name.upper()} for {n_epochs} epochs\n")
+        print(f"Training {self.model_name} for {n_epochs} epochs\n")
         best_model = self._train_model(
             loss_fn, optimizer, scheduler, n_epochs, start_epoch
         )
@@ -592,7 +599,7 @@ if __name__ == "__main__":
         "--n_classes", type=int, default=3, help="No. of segmentation classes"
     )
     parser.add_argument(
-        "--in_channels", type=int, default=1, help="No. of input channels"
+        "--in_channels", type=int, default=3, help="No. of input channels"
     )
 
     args = parser.parse_args()

@@ -1,6 +1,7 @@
 import os
 import random
-
+import cv2
+import numpy as np
 import torch
 from torch.utils.data import Dataset
 
@@ -24,8 +25,11 @@ class Ego2HandsDataset(Dataset):
     IMG_W = 512
     VALID_HAND_SEG_TH = 5000
 
-    def __init__(self, img_dir, bg_dir, with_arms=False, input_edge=False):
+    def __init__(
+        self, img_dir, bg_dir, grayscale=False, with_arms=False, input_edge=False
+    ):
 
+        self.grayscale = grayscale
         self.input_edge = input_edge
         self.with_arms = with_arms
 
@@ -97,7 +101,11 @@ class Ego2HandsDataset(Dataset):
             left_seg = left_energy > 0.5
 
         left_img_orig = left_img.copy()
-        left_img, left_seg = seg_augmentation_wo_kpts(left_img, left_seg)
+
+        try:
+            left_img, left_seg = seg_augmentation_wo_kpts(left_img, left_seg)
+        except:
+            pass
 
         brightness_val = random.randint(15, 240)
 
@@ -132,7 +140,10 @@ class Ego2HandsDataset(Dataset):
 
         right_img_orig = right_img.copy()
 
-        right_img, right_seg = seg_augmentation_wo_kpts(right_img, right_seg)
+        try:
+            right_img, right_seg = seg_augmentation_wo_kpts(right_img, right_seg)
+        except:
+            pass
 
         right_img = change_mean_brightness(
             right_img, right_seg, brightness_val, 20, self.img_path_list[right_i]
@@ -218,12 +229,15 @@ class Ego2HandsDataset(Dataset):
         # )
 
         img_real_orig_tensor = torch.from_numpy(img_real_orig)
-        img_real = cv2.cvtColor(img_real, cv2.COLOR_RGB2GRAY)
+
+        if self.grayscale:
+            img_real = cv2.cvtColor(img_real, cv2.COLOR_RGB2GRAY)
 
         if self.input_edge:
             img_edge = cv2.Canny(img_real.astype(np.uint8), 25, 100).astype(np.float32)
             img_real = np.stack((img_real, img_edge), -1)
-        else:
+
+        if self.grayscale:
             img_real = np.expand_dims(img_real, -1)
 
         img_real_tensor = normalize_tensor(

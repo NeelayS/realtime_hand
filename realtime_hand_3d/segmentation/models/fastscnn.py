@@ -223,7 +223,7 @@ class Classifer(nn.Module):
 
 @SEG_MODELS_REGISTRY.register()
 class FastSCNN(nn.Module):
-    def __init__(self, n_classes=3, in_channels=1, aux=False):
+    def __init__(self, n_classes=3, in_channels=1, aux=True):
         super(FastSCNN, self).__init__()
 
         self.aux = aux
@@ -253,7 +253,7 @@ class FastSCNN(nn.Module):
         outputs = []
         outputs.append(x)
 
-        if self.aux:
+        if self.aux and self.training:
 
             auxout = self.auxlayer(higher_res_features)
             outputs.append(auxout)

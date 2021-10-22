@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -J TrainSegModels-SmallUNet.%j
+#SBATCH -J TrainSegModels-FastSCNN.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/TrainSegModels-SmallUNet.%j.out
-#SBATCH -e ../../errs/segmentation/TrainSegModels-SmallUNet.%j.err
+#SBATCH -o ../../outs/segmentation/TrainSegModels-FastSCNN.%j.out
+#SBATCH -e ../../errs/segmentation/TrainSegModels-FastSCNN.%j.err
 #SBATCH -t 24:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:V100:1
@@ -10,16 +10,16 @@
 # model=$1
 # device=$2
 
-train_cfg="configs/segmentation/base_trainer.yaml"
-model="SmallUNet"
+train_cfg="configs/segmentation/custom_loss_trainer.yaml"
+model="FastSCNN"
 img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/SmallUNet"
-ckpt_dir="ckpts/segmentation/SmallUNet"
-epochs=1 # 10
+log_dir="logs/segmentation/FastSCNN"
+ckpt_dir="ckpts/segmentation/FastSCNN"
+epochs=3 # 10
 device="0"
 
-resume_ckpt="ckpts/segmentation/SmallUNet/SmallUNet_epoch_10.pth"
+resume_ckpt="ckpts/segmentation/FastSCNN/FastSCNN_epoch_10.pth"
 resume_epochs=10
 n_classes=3
 in_channels=3

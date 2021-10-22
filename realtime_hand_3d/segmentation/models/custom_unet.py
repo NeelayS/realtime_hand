@@ -136,5 +136,6 @@ class CustomUNet(nn.Module):
         return logits
 
 
+@SEG_MODELS_REGISTRY.register()
 def CustomSmallUNet(in_channels=1, n_classes=3, bilinear=True):
     return CustomUNet(in_channels, n_classes, bilinear, (8, 16, 32, 64, 128))
