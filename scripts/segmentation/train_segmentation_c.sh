@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -J TrainSegModels-FastSCNN.%j
+#SBATCH -J TrainSegModels-SwiftNetRes18.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/TrainSegModels-FastSCNN.%j.out
-#SBATCH -e ../../errs/segmentation/TrainSegModels-FastSCNN.%j.err
+#SBATCH -o ../../outs/segmentation/TrainSegModels-SwiftNetRes18.%j.out
+#SBATCH -e ../../errs/segmentation/TrainSegModels-SwiftNetRes18.%j.err
 #SBATCH -t 24:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:V100:1
@@ -11,15 +11,15 @@
 # device=$2
 
 train_cfg="configs/segmentation/custom_loss_trainer.yaml"
-model="FastSCNN"
+model="SwiftNetRes18"
 img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/FastSCNN"
-ckpt_dir="ckpts/segmentation/FastSCNN"
+log_dir="logs/segmentation/SwiftNetRes18"
+ckpt_dir="ckpts/segmentation/SwiftNetRes18"
 epochs=3 # 10
 device="0"
 
-resume_ckpt="ckpts/segmentation/FastSCNN/FastSCNN_epoch_10.pth"
+resume_ckpt="ckpts/segmentation/SwiftNetRes18/SwiftNetRes18_epoch_10.pth"
 resume_epochs=10
 n_classes=3
 in_channels=3

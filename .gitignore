@@ -130,8 +130,8 @@ dmypy.json
 
 # Random
 t.py
-t*.py
-*/t*.py
+t1.py
+t2.py
 temp.py
 */temp.py
 temp/

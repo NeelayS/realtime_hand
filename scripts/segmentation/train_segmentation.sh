@@ -16,7 +16,7 @@ img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
 log_dir="logs/segmentation/SmallUNet"
 ckpt_dir="ckpts/segmentation/SmallUNet"
-epochs=1 # 10
+epochs=3 # 10
 device="0"
 
 resume_ckpt="ckpts/segmentation/SmallUNet/SmallUNet_epoch_10.pth"

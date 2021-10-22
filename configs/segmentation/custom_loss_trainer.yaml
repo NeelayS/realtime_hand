@@ -4,7 +4,7 @@ custom_scene_brightness: "normal" #[dark, normal, bright]
 grayscale: False
 input_edge: False
 with_arms: False
-val_split_ratio: 0.1
+val_split_ratio: 0.05
 n_classes: 3
 in_channels: 1
 
