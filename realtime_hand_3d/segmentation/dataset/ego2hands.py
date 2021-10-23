@@ -107,12 +107,15 @@ class Ego2HandsDataset(Dataset):
         except:
             pass
 
-        brightness_val = random.randint(15, 240)
+        brightness_val = random.randint(100, 200)
 
-        left_img = change_mean_brightness(
-            left_img, left_seg, brightness_val, 20, self.img_path_list[left_i]
-        )
-        left_img = random_smoothness(left_img)
+        try:
+            left_img = change_mean_brightness(
+                left_img, left_seg, brightness_val, 20, self.img_path_list[left_i]
+            )
+            left_img = random_smoothness(left_img)
+        except:
+            pass
 
         right_i = random.randint(0, self.__len__() - 1)
         right_img = cv2.imread(self.img_path_list[right_i], cv2.IMREAD_UNCHANGED)
@@ -145,22 +148,27 @@ class Ego2HandsDataset(Dataset):
         except:
             pass
 
-        right_img = change_mean_brightness(
-            right_img, right_seg, brightness_val, 20, self.img_path_list[right_i]
-        )
-        right_img = random_smoothness(right_img)
+        try:
+            right_img = change_mean_brightness(
+                right_img, right_seg, brightness_val, 20, self.img_path_list[right_i]
+            )
+            right_img = random_smoothness(right_img)
+        except:
+            pass
 
         bg_img = None
         while bg_img is None:
             bg_i = random.randint(0, len(self.bg_list) - 1)
             bg_img = cv2.imread(self.bg_list[bg_i]).astype(np.float32)
 
-            bg_img = random_bg_augment(
-                bg_img,
-                self.bg_list[bg_i],
-            )
-
-            bg_img = random_smoothness(bg_img)
+            try:
+                bg_img = random_bg_augment(
+                    bg_img,
+                    self.bg_list[bg_i],
+                )
+                bg_img = random_smoothness(bg_img)
+            except:
+                pass
 
         merge_mode = random.randint(0, 9)
         if merge_mode < 8:
@@ -228,7 +236,7 @@ class Ego2HandsDataset(Dataset):
         #     interpolation=cv2.INTER_NEAREST,
         # )
 
-        img_real_orig_tensor = torch.from_numpy(img_real_orig)
+        # img_real_orig_tensor = torch.from_numpy(img_real_orig)
 
         if self.grayscale:
             img_real = cv2.cvtColor(img_real, cv2.COLOR_RGB2GRAY)
@@ -244,6 +252,7 @@ class Ego2HandsDataset(Dataset):
             torch.from_numpy(img_real.transpose(2, 0, 1)), 128.0, 256.0
         )
         seg_real_tensor = torch.from_numpy(seg_real).long()
+
         # seg_real2_tensor = torch.from_numpy(seg_real2).long()
         # seg_real4_tensor = torch.from_numpy(seg_real4).long()
 

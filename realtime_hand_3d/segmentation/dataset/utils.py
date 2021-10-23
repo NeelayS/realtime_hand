@@ -88,7 +88,7 @@ def seg_augmentation_wo_kpts(img, seg):
 def random_bg_augment(img, img_path="", brightness_aug=True, flip_aug=True):
 
     if brightness_aug:
-        brightness_val = random.randint(35, 220)
+        brightness_val = random.randint(100, 200)
         img = change_mean_brightness(img, None, brightness_val, 20, img_path)
 
     img = img.astype("uint8")
@@ -177,7 +177,9 @@ def change_mean_brightness(img, seg, brightness_val, jitter_range=20, img_path="
         old_mean_val = np.mean(img[seg])
     else:
         old_mean_val = np.mean(img)
+
     assert old_mean_val != 0, f"ERROR: {img_path} has mean of 0"
+
     new_mean_val = brightness_val + random.uniform(-jitter_range / 2, jitter_range / 2)
     img *= new_mean_val / old_mean_val
     img = np.clip(img, 0, 255)

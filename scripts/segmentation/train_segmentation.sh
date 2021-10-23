@@ -14,9 +14,9 @@ train_cfg="configs/segmentation/base_trainer.yaml"
 model="SmallUNet"
 img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/SmallUNet"
-ckpt_dir="ckpts/segmentation/SmallUNet"
-epochs=3 # 10
+log_dir="logs/segmentation/SmallUNet/run1"
+ckpt_dir="ckpts/segmentation/SmallUNet/run1"
+epochs=10
 device="0"
 
 resume_ckpt="ckpts/segmentation/SmallUNet/SmallUNet_epoch_10.pth"

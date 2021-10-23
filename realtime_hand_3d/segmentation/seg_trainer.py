@@ -207,6 +207,9 @@ class SegTrainer:
             epoch_loss.reset()
             for iteration, (img, mask) in enumerate(self.train_loader):
 
+                if iteration > training_cfg.max_epoch_iterations:
+                    break
+
                 img, mask = (
                     img.to(self.device),
                     mask.to(self.device),
@@ -238,6 +241,10 @@ class SegTrainer:
                     )
 
                     new_avg_val_loss, new_avg_val_metric = self._validate_model(model)
+
+                    print(
+                        f"Epoch iterations: {iteration}, Total iterations: {total_iters}, Average validation loss: {new_avg_val_loss}, Average validation metric: {new_avg_val_metric}"
+                    )
 
                     if new_avg_val_loss < min_avg_val_loss:
 

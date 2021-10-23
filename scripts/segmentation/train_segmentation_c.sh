@@ -14,9 +14,9 @@ train_cfg="configs/segmentation/custom_loss_trainer.yaml"
 model="SwiftNetRes18"
 img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/SwiftNetRes18"
-ckpt_dir="ckpts/segmentation/SwiftNetRes18"
-epochs=3 # 10
+log_dir="logs/segmentation/SwiftNetRes18/run1"
+ckpt_dir="ckpts/segmentation/SwiftNetRes18/run1"
+epochs=10
 device="0"
 
 resume_ckpt="ckpts/segmentation/SwiftNetRes18/SwiftNetRes18_epoch_10.pth"
