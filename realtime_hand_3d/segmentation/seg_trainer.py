@@ -108,9 +108,11 @@ class SegTrainer:
         train_set, val_set = random_split(dataset, [train_size, val_size])
 
         train_loader = DataLoader(
-            train_set, batch_size=self.cfg.batch_size, shuffle=True
+            train_set, batch_size=self.cfg.batch_size, pin_memory=True
         )
-        val_loader = DataLoader(val_set, batch_size=self.cfg.batch_size, shuffle=True)
+        val_loader = DataLoader(
+            val_set, batch_size=self.cfg.batch_size, pin_memory=True
+        )
 
         print("Loaded dataset")
 
@@ -176,6 +178,10 @@ class SegTrainer:
     def _calculate_loss(self, pred, target):
 
         if not self.cfg.criterion.use_custom:
+
+            if isinstance(pred, tuple) or isinstance(pred, list):
+                pred = pred[0]
+
             pred, target = self._interpolate(pred, target)
 
         return self.loss_fn(pred, target)
@@ -192,7 +198,7 @@ class SegTrainer:
 
         epoch_loss = AverageMeter()
         min_avg_val_loss = float("inf")
-        min_avg_val_metric = float("inf")
+        max_avg_val_metric = 0.0
 
         if start_epoch is not None:
             print(f"Resuming training from epoch {start_epoch+1}\n")
@@ -221,6 +227,7 @@ class SegTrainer:
 
                 optimizer.zero_grad()
                 loss.backward()
+                nn.utils.clip_grad_norm_(model.parameters(), 1)
                 optimizer.step()
 
                 if scheduler is not None:
@@ -266,9 +273,9 @@ class SegTrainer:
                                 f"Saved new best model at epoch {epochs+1}, iteration {iteration}!"
                             )
 
-                    if new_avg_val_metric < min_avg_val_metric:
+                    if new_avg_val_metric > max_avg_val_metric:
 
-                        min_avg_val_metric = new_avg_val_metric
+                        max_avg_val_metric = new_avg_val_metric
                         print("New minimum average validation metric!")
 
                         if self.cfg.validate_on.lower() == "metric":
@@ -321,9 +328,9 @@ class SegTrainer:
                         )
                         print(f"Saved new best model at epoch {epochs+1}!")
 
-                if new_avg_val_metric < min_avg_val_metric:
+                if new_avg_val_metric > max_avg_val_metric:
 
-                    min_avg_val_metric = new_avg_val_metric
+                    max_avg_val_metric = new_avg_val_metric
                     print("New minimum average validation metric!")
 
                     if self.cfg.validate_on.lower() == "metric":

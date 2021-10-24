@@ -10,13 +10,12 @@ in_channels: 3
 
 # Training
 
-batch_size: 5
+batch_size: 32
 n_epochs: 10
 max_epoch_iterations: 500
-eval_interval: 1
 optimizer: 
   name: "AdamW"
-  lr: 0.0004
+  lr: 0.001
   params:
     weight_decay: 0.0001
     eps: 1.e-08
