@@ -88,7 +88,7 @@ def seg_augmentation_wo_kpts(img, seg):
 def random_bg_augment(img, img_path="", brightness_aug=True, flip_aug=True):
 
     if brightness_aug:
-        brightness_val = random.randint(100, 200)
+        brightness_val = random.randint(175, 225)
         img = change_mean_brightness(img, None, brightness_val, 20, img_path)
 
     img = img.astype("uint8")

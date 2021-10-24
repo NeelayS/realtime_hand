@@ -1,4 +1,5 @@
 from .bisegnet import BiSegNet
+from .csm import CSM
 from .custom_icnet import CustomICNet
 from .custom_unet import CustomSmallUNet, CustomUNet
 from .dfanet import DFANet

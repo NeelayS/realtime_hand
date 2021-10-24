@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -J TrainSegModels-SmallUNet.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/TrainSegModels-SmallUNet.%j.out
-#SBATCH -e ../../errs/segmentation/TrainSegModels-SmallUNet.%j.err
+#SBATCH -o ../../outs/segmentation/training/SmallUNet.%j.out
+#SBATCH -e ../../errs/segmentation/training/SmallUNet.%j.err
 #SBATCH -t 24:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:V100:1
@@ -14,8 +14,8 @@ train_cfg="configs/segmentation/base_trainer.yaml"
 model="SmallUNet"
 img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/SmallUNet/run1"
-ckpt_dir="ckpts/segmentation/SmallUNet/run1"
+log_dir="logs/segmentation/SmallUNet/run2"
+ckpt_dir="ckpts/segmentation/SmallUNet/run2"
 epochs=10
 device="0"
 
