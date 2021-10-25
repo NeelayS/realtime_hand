@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -J TrainSegModels-ICNet.%j
+#SBATCH -J TrainSegModels-SwiftNetRes18.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/training/ICNet.%j.out
-#SBATCH -e ../../errs/segmentation/training/ICNet.%j.err
+#SBATCH -o ../../outs/segmentation/training/SwiftNetRes18.%j.out
+#SBATCH -e ../../errs/segmentation/training/SwiftNetRes18.%j.err
 #SBATCH -t 24:00:00
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:V100:1
@@ -11,15 +11,15 @@
 # device=$2
 
 train_cfg="configs/segmentation/custom_loss_trainer.yaml"
-model="ICNet"
+model="SwiftNetRes18"
 img_dir="../sub_imgs" #"data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
-log_dir="logs/segmentation/ICNet/run7"
-ckpt_dir="ckpts/segmentation/ICNet/run7"
+log_dir="logs/segmentation/SwiftNetRes18/run8"
+ckpt_dir="ckpts/segmentation/SwiftNetRes18/run8"
 epochs=15
 device="0"
 
-resume_ckpt="ckpts/segmentation/ICNet/ICNet_epoch_10.pth"
+resume_ckpt="ckpts/segmentation/SwiftNetRes18/SwiftNetRes18_epoch_10.pth"
 resume_epochs=10
 n_classes=3
 in_channels=3

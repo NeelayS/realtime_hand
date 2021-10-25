@@ -14,8 +14,8 @@ train_cfg="configs/segmentation/base_trainer.yaml"
 model="DFSegNetV1"
 img_dir="../sub_imgs" # "data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/DFSegNetV1/run7"
-ckpt_dir="ckpts/segmentation/DFSegNetV1/run7"
+log_dir="logs/segmentation/DFSegNetV1/run8"
+ckpt_dir="ckpts/segmentation/DFSegNetV1/run8"
 epochs=15
 device="0"
 

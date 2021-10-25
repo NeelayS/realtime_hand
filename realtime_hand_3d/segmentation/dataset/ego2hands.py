@@ -248,9 +248,17 @@ class Ego2HandsDataset(Dataset):
         if self.grayscale:
             img_real = np.expand_dims(img_real, -1)
 
-        img_real_tensor = normalize_tensor(
-            torch.from_numpy(img_real.transpose(2, 0, 1)), 128.0, 256.0
-        )
+        # img_real_tensor = normalize_tensor(
+        #     torch.from_numpy(img_real.transpose(2, 0, 1)), 128.0, 256.0
+        # )
+
+        norm_img_real = img_real / 255.0
+        norm_img_real -= np.array(
+            (0.485, 0.456, 0.406), dtype=np.float32
+        )  # ImageNet normalization
+        norm_img_real /= np.array((0.229, 0.224, 0.225), dtype=np.float32)
+        img_real_tensor = torch.from_numpy(norm_img_real.transpose(2, 0, 1))
+
         seg_real_tensor = torch.from_numpy(seg_real).long()
 
         # seg_real2_tensor = torch.from_numpy(seg_real2).long()
