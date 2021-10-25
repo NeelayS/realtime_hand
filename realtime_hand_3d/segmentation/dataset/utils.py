@@ -88,7 +88,7 @@ def seg_augmentation_wo_kpts(img, seg):
 def random_bg_augment(img, img_path="", brightness_aug=True, flip_aug=True):
 
     if brightness_aug:
-        brightness_val = random.randint(175, 225)
+        brightness_val = random.randint(50, 225)
         img = change_mean_brightness(img, None, brightness_val, 20, img_path)
 
     img = img.astype("uint8")
@@ -205,3 +205,11 @@ def random_smoothness(img, smooth_rate=0.3):
         img[:, :, :3] = cv2.blur(img[:, :, :3], (kernel_size, kernel_size))
 
     return img
+
+
+def normalize_tensor(tensor, mean, std):
+
+    for t in tensor:
+        t.sub_(mean).div_(std)
+
+    return tensor

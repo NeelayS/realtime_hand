@@ -107,7 +107,7 @@ class Ego2HandsDataset(Dataset):
         except:
             pass
 
-        brightness_val = random.randint(200, 225)
+        brightness_val = random.randint(50, 225)
 
         try:
             left_img = change_mean_brightness(

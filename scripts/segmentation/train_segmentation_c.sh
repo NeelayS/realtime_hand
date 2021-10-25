@@ -12,11 +12,11 @@
 
 train_cfg="configs/segmentation/custom_loss_trainer.yaml"
 model="ICNet"
-img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
+img_dir="../sub_imgs" #"data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
-log_dir="logs/segmentation/ICNet/run3"
-ckpt_dir="ckpts/segmentation/ICNet/run3"
-epochs=10
+log_dir="logs/segmentation/ICNet/run7"
+ckpt_dir="ckpts/segmentation/ICNet/run7"
+epochs=15
 device="0"
 
 resume_ckpt="ckpts/segmentation/ICNet/ICNet_epoch_10.pth"
