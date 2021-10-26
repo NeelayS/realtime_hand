@@ -14,15 +14,15 @@ train_cfg="configs/segmentation/base_trainer.yaml"
 model="CustomSmallUNet"
 img_dir="../sub_imgs" # "data/segmentation/Ego2Hands/train_imgs/"  
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
-log_dir="logs/segmentation/CustomSmallUNet/run9"
-ckpt_dir="ckpts/segmentation/CustomSmallUNet/run9"
+log_dir="logs/segmentation/CustomSmallUNet/run10"
+ckpt_dir="ckpts/segmentation/CustomSmallUNet/run10"
 epochs=15
 device="0"
 
 resume_ckpt="ckpts/segmentation/CustomSmallUNet/CustomSmallUNet_epoch_10.pth"
 resume_epochs=10
 n_classes=3
-in_channels=1 # 3
+in_channels=2 # 3
 
 cd ../..
 module load nvidia/10.2

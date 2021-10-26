@@ -232,9 +232,8 @@ class Ego2HandsDataset(Dataset):
             img_edge = cv2.Canny(img_real.astype(np.uint8), 25, 100).astype(np.float32)
             img_real = np.stack((img_real, img_edge), -1)
 
-        if self.grayscale:
+        if self.grayscale and not self.input_edge:
             img_real = np.expand_dims(img_real, -1)
-
 
         if self.grayscale:
             img_real_tensor = normalize_tensor(

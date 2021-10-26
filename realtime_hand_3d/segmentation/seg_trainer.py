@@ -276,7 +276,7 @@ class SegTrainer:
                     if new_avg_val_metric > max_avg_val_metric:
 
                         max_avg_val_metric = new_avg_val_metric
-                        print("New minimum average validation metric!")
+                        print("New maximum average validation metric!")
 
                         if self.cfg.validate_on.lower() == "metric":
                             best_model = deepcopy(model)
@@ -331,7 +331,7 @@ class SegTrainer:
                 if new_avg_val_metric > max_avg_val_metric:
 
                     max_avg_val_metric = new_avg_val_metric
-                    print("New minimum average validation metric!")
+                    print("New maximum average validation metric!")
 
                     if self.cfg.validate_on.lower() == "metric":
                         best_model = deepcopy(model)
