@@ -12,17 +12,17 @@
 
 train_cfg="configs/segmentation/custom_loss_trainer.yaml"
 model="SwiftNetRes18"
-img_dir="../sub_imgs" #"data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
+img_dir="../sub_imgs" #"data/segmentation/Ego2Hands/train_imgs/" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
-log_dir="logs/segmentation/SwiftNetRes18/run8"
-ckpt_dir="ckpts/segmentation/SwiftNetRes18/run8"
+log_dir="logs/segmentation/SwiftNetRes18/run9"
+ckpt_dir="ckpts/segmentation/SwiftNetRes18/run9"
 epochs=15
 device="0"
 
 resume_ckpt="ckpts/segmentation/SwiftNetRes18/SwiftNetRes18_epoch_10.pth"
 resume_epochs=10
 n_classes=3
-in_channels=3
+in_channels=1 # 3
 
 cd ../..
 module load nvidia/10.2

@@ -1,7 +1,7 @@
 # Data 
 
 custom_scene_brightness: "bright" #[dark, normal, bright]
-grayscale: False
+grayscale: True # False
 input_edge: False
 with_arms: False
 val_split_ratio: 0.01
