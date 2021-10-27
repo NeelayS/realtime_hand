@@ -360,7 +360,7 @@ class SwiftNetResNet(nn.Module):
 
 
 @SEG_MODELS_REGISTRY.register()
-def SwiftNetRes18(in_channels=3, n_classes=3, pretrained=True, **kwargs):
+def SwiftNetRes18(in_channels=3, n_classes=3, pretrained=False, **kwargs):
 
     model = SwiftNetResNet(
         BasicBlock, [2, 2, 2, 2], in_channels=in_channels, n_classes=n_classes, **kwargs
