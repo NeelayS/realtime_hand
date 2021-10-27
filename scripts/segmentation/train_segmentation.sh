@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -J TrainSegModels-DFSegNetV1.%j
+#SBATCH -J TrainSegModels-CustomSmallUNet.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/training/DFSegNetV1.%j.out
-#SBATCH -e ../../errs/segmentation/training/DFSegNetV1.%j.err
+#SBATCH -o ../../outs/segmentation/training/CustomSmallUNet.%j.out
+#SBATCH -e ../../errs/segmentation/training/CustomSmallUNet.%j.err
 #SBATCH -t 24:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:V100:1
@@ -11,18 +11,18 @@
 # device=$2
 
 train_cfg="configs/segmentation/base_trainer.yaml"
-model="DFSegNetV1"
-img_dir="data/segmentation/Ego2Hands/train_imgs/"  # Remove 0  #  "../imgs/temp/train" 
-bg_dir="data/segmentation/Ego2Hands/bg_imgs" # "../imgs/temp/bg"   
-log_dir="logs/segmentation/DFSegNetV1/run3"
-ckpt_dir="ckpts/segmentation/DFSegNetV1/run3"
-epochs=10
+model="CustomSmallUNet"
+img_dir="../sub_imgs" # "data/segmentation/Ego2Hands/train_imgs/"  
+bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
+log_dir="logs/segmentation/CustomSmallUNet/run10"
+ckpt_dir="ckpts/segmentation/CustomSmallUNet/run10"
+epochs=15
 device="0"
 
-resume_ckpt="ckpts/segmentation/DFSegNetV1/DFSegNetV1_epoch_10.pth"
+resume_ckpt="ckpts/segmentation/CustomSmallUNet/CustomSmallUNet_epoch_10.pth"
 resume_epochs=10
 n_classes=3
-in_channels=3
+in_channels=2 # 3
 
 cd ../..
 module load nvidia/10.2
