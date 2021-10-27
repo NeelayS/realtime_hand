@@ -199,12 +199,20 @@ class ICNet(nn.Module):
         x_sub1 = self.conv_sub1(input)
 
         x_sub2 = F.interpolate(
-            input, scale_factor=0.5, mode="bilinear", align_corners=True
+            input,
+            scale_factor=0.5,
+            mode="bilinear",
+            align_corners=True,
+            recompute_scale_factor=True,
         )
         x_sub2 = self._run_backbone_sub2(x_sub2)
 
         x_sub4 = F.interpolate(
-            x_sub2, scale_factor=0.5, mode="bilinear", align_corners=True
+            x_sub2,
+            scale_factor=0.5,
+            mode="bilinear",
+            align_corners=True,
+            recompute_scale_factor=True,
         )
         x_sub4 = self._run_backbone_sub4(x_sub4)
         x_sub4 = self.ppm(x_sub4)

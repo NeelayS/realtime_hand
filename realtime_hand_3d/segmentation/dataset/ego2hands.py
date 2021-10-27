@@ -252,6 +252,5 @@ class Ego2HandsDataset(Dataset):
 
         return img_real_tensor, seg_real_tensor
 
-
     def __len__(self):
         return len(self.img_path_list)
