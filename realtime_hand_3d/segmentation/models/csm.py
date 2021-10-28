@@ -110,7 +110,7 @@ class DeconvBottleneck(nn.Module):
 
 class CSM_model(nn.Module):
     def __init__(
-        self, downblock, upblock, in_channels, n_classes, with_energy=False, n_stages=2
+        self, downblock, upblock, in_channels, n_classes, with_energy=True, n_stages=2
     ):
         super(CSM_model, self).__init__()
 
@@ -287,7 +287,7 @@ class CSM_model(nn.Module):
 
         if self.n_stages == 2:
             if self.with_energy:
-                return x_hands2, x_e_out2
+                return x_e_out2, x_hands2
             else:
                 return x_hands2
         else:

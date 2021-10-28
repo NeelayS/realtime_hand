@@ -4,10 +4,9 @@ import cv2 as cv
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torchvision import io
 
-from realtime_hand_3d.segmentation import SEG_MODELS_REGISTRY
-from realtime_hand_3d.segmentation.dataset.ego2hands import normalize_tensor
+from .models import SEG_MODELS_REGISTRY
+from .dataset import normalize_tensor
 
 
 def preprocess(img, size=(512, 288), grayscale=False, input_edge=False):
@@ -65,16 +64,24 @@ def infer_image(
     with torch.no_grad():
         pred = model(img.to(device))
 
+    if isinstance(pred, tuple) or isinstance(pred, list):
+        pred = pred[0]
+
     pred = F.interpolate(
         pred, size=img.shape[-2:], mode="bilinear", align_corners=True
     )[0]
     pred = F.softmax(pred, dim=0)
-    mask = torch.argmax(pred, dim=0)
+    mask = torch.argmax(pred, dim=0).cpu().numpy()
 
-    img_r[mask == 1] = [128, 128, 255]
-    img_r[mask == 2] = [255, 128, 128]
+    img_r[mask == 1] = [127, 127, 255]
+    img_r[mask == 2] = [255, 127, 127]
 
-    cv.imwrite(os.path.join(out_dir, image_path.split("/")[-1]), img_r)
+    cv.imwrite(
+        os.path.join(
+            out_dir, model.__class__.__name__ + "_" + image_path.split("/")[-1]
+        ),
+        img_r,
+    )
 
 
 def infer_video(
@@ -91,7 +98,7 @@ def infer_video(
 
     fourcc = cv.VideoWriter_fourcc(*"mp4v")
     out_video = cv.VideoWriter(
-        os.path.join(out_dir, video_name),
+        os.path.join(out_dir, model.__class__.__name__ + "_" + video_name),
         fourcc,
         cap.get(cv.CAP_PROP_FPS),  # *'XVID' .avi
         (int(cap.get(3)), int(cap.get(4))),
@@ -111,11 +118,14 @@ def infer_video(
         with torch.no_grad():
             pred = model(img)
 
+        if isinstance(pred, tuple) or isinstance(pred, list):
+            pred = pred[0]
+
         pred = F.interpolate(
             pred, size=img.shape[-2:], mode="bilinear", align_corners=True
         )[0]
         pred = F.softmax(pred, dim=0)
-        mask = torch.argmax(pred, dim=0)
+        mask = torch.argmax(pred, dim=0).cpu().numpy()
 
         new_frame = frame
         new_frame[mask == 1] = [128, 128, 255]
@@ -141,7 +151,7 @@ def setup_model(model_name, weights_path=None, grayscale=False, input_edge=False
 
     if weights_path is not None:
         model.load_state_dict(
-            torch.load(weights_path, map_location=torch.device("cpu"))
+            torch.load(weights_path, map_location=torch.device("cpu")), strict=False
         )
 
     model.eval()
