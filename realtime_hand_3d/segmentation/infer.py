@@ -1,12 +1,13 @@
 import os
+from glob import glob
 
 import cv2 as cv
 import numpy as np
 import torch
 import torch.nn.functional as F
 
-from .models import SEG_MODELS_REGISTRY
 from .dataset import normalize_tensor
+from .models import SEG_MODELS_REGISTRY
 
 
 def preprocess(img, size=(512, 288), grayscale=False, input_edge=False):
@@ -56,8 +57,8 @@ def infer_image(
     model.eval()
 
     img = cv.imread(image_path)
-    img_r = cv.resize(img, (512, 288))
     H, W, _ = img.shape
+    img_r = cv.resize(img, (512, 288))
 
     img = preprocess(img, size=(512, 288), grayscale=grayscale, input_edge=input_edge)
 
@@ -76,6 +77,7 @@ def infer_image(
     img_r[mask == 1] = [127, 127, 255]
     img_r[mask == 2] = [255, 127, 127]
 
+    img_r = cv.resize(img_r, (W, H))
     cv.imwrite(
         os.path.join(
             out_dir, model.__class__.__name__ + "_" + image_path.split("/")[-1]
@@ -151,7 +153,7 @@ def setup_model(model_name, weights_path=None, grayscale=False, input_edge=False
 
     if weights_path is not None:
         model.load_state_dict(
-            torch.load(weights_path, map_location=torch.device("cpu")), strict=False
+            torch.load(weights_path, map_location=torch.device("cpu")),
         )
 
     model.eval()
@@ -168,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--weights", type=str, default=None)
     parser.add_argument("--video", type=str, default=None, required=False)
     parser.add_argument("--image", type=str, default=None, required=False)
+    parser.add_argument("--img_dir", type=str, default=None, required=False)
     parser.add_argument("--out_dir", type=str, default=".")
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--grayscale", action="store_true", default=False)
@@ -175,6 +178,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     model = setup_model(args.model, args.weights, args.grayscale, args.input_edge)
+
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir, exist_ok=True)
 
     if args.video is not None:
         infer_video(
@@ -185,7 +191,8 @@ if __name__ == "__main__":
             args.grayscale,
             args.input_edge,
         )
-    else:
+
+    elif args.image is not None:
         infer_image(
             args.image,
             model,
@@ -194,3 +201,19 @@ if __name__ == "__main__":
             args.grayscale,
             args.input_edge,
         )
+
+    elif args.img_dir is not None:
+        for image_path in glob(os.path.join(args.img_dir, "*.png")):
+
+            if not image_path.split("/")[-1][:-4].isnumeric():
+                continue
+
+            print(f"Inferring {image_path}")
+            infer_image(
+                image_path,
+                model,
+                args.out_dir,
+                args.device,
+                args.grayscale,
+                args.input_edge,
+            )
