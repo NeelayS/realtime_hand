@@ -1,8 +1,7 @@
-# realtime_hand_3d
+<h1 align="center">Real-time Hand 3D</h1>
 
 <b>Real-time hand pose and shape in RGB videos</b>
 
-<br>
 
 ## Steps to train 
 
@@ -48,3 +47,5 @@ This will download the compressed data files, extract them to `segmentation/data
 ```
 tensorboard --logdir=experiments
 ```
+
+- [Logbook](https://docs.google.com/presentation/d/1YhDqO45iTKSUMuCZKRJYAS_nF5lGWrgdv7AjtxDuFcU/edit#slide=id.gfcf3cf692a_0_0)

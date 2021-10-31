@@ -215,15 +215,12 @@ def normalize_tensor(tensor, mean, std):
     return tensor
 
 
-def gen_e2h_mask(left_seg_path, right_seg_path):
+def gen_e2h_mask(left_seg_path, right_seg_path, save_path):
 
-    left_seg = cv2.imread(left_seg_path, cv2.IMREAD_UNCHANGED)
-    right_seg = cv2.imread(right_seg_path, cv2.IMREAD_UNCHANGED)
+    left_seg = cv2.imread(left_seg_path, cv2.IMREAD_GRAYSCALE)
+    right_seg = cv2.imread(right_seg_path, cv2.IMREAD_GRAYSCALE)
 
-    left_seg = np.expand_dims(left_seg, axis=2)
-    right_seg = np.expand_dims(right_seg, axis=2)
+    seg = left_seg + right_seg
+    seg = seg / 255
 
-    left_seg = np.concatenate((left_seg, left_seg, left_seg), axis=2)
-    right_seg = np.concatenate((right_seg, right_seg, right_seg), axis=2)
-
-    return left_seg, right_seg
+    cv2.imwrite(save_path, seg)
