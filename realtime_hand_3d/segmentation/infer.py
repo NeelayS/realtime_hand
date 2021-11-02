@@ -5,7 +5,9 @@ import cv2 as cv
 import numpy as np
 import torch
 import torch.nn.functional as F
+from torchmetrics import IoU
 
+from ..utils import AverageMeter
 from .dataset import normalize_tensor
 from .models import SEG_MODELS_REGISTRY
 
@@ -140,6 +142,56 @@ def infer_video(
     out_video.release()
 
 
+def eval_imgs(model, img_dir, target_dir, grayscale, input_edge, device="cpu"):
+
+    device = torch.device(device)
+
+    model = model.to(device)
+    model.eval()
+
+    metric_fn = IoU(num_classes=3).to(device)
+    metric_meter = AverageMeter()
+
+    img_paths = sorted(
+        glob(os.path.join(img_dir, "*.jpg")) + glob(os.path.join(img_dir, "*.png"))
+    )
+    target_paths = sorted(
+        glob(os.path.join(target_dir, "*.jpg"))
+        + glob(os.path.join(target_dir, "*.png"))
+    )
+
+    for img_path, target_path in zip(img_paths, target_paths):
+
+        img = cv.imread(img_path)
+        H, W, _ = img.shape
+        img = preprocess(
+            img, size=(512, 288), grayscale=grayscale, input_edge=input_edge
+        )
+
+        target = cv.imread(target_path, cv.IMREAD_GRAYSCALE) // 127
+        target = torch.from_numpy(target).long()
+
+        with torch.no_grad():
+            pred = model(img.to(device))
+
+        if isinstance(pred, tuple) or isinstance(pred, list):
+            pred = pred[0]
+
+        pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)
+        pred = F.softmax(pred, dim=1)
+        pred = torch.argmax(pred, dim=1)
+
+        target = target.unsqueeze(0)
+
+        metric = metric_fn(pred, target).item()
+        print(metric)
+        metric_meter.update(metric)
+
+    print(f"The average evaluation metric for the images is {metric_meter.avg}")
+
+    return metric_meter.avg
+
+
 def setup_model(model_name, weights_path=None, grayscale=False, input_edge=False):
 
     if grayscale:
@@ -171,10 +223,13 @@ if __name__ == "__main__":
     parser.add_argument("--video", type=str, default=None, required=False)
     parser.add_argument("--image", type=str, default=None, required=False)
     parser.add_argument("--img_dir", type=str, default=None, required=False)
+    parser.add_argument("--target_dir", type=str, default=None, required=False)
     parser.add_argument("--out_dir", type=str, default=".")
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--grayscale", action="store_true", default=False)
     parser.add_argument("--input_edge", action="store_true", default=False)
+    parser.add_argument("--eval", action="store_true", default=False)
+    parser.add_argument("--save", required=False, default=True)
     args = parser.parse_args()
 
     model = setup_model(args.model, args.weights, args.grayscale, args.input_edge)
@@ -182,7 +237,17 @@ if __name__ == "__main__":
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir, exist_ok=True)
 
-    if args.video is not None:
+    if args.eval and args.target_dir is not None:
+        eval_imgs(
+            model,
+            args.img_dir,
+            args.target_dir,
+            args.grayscale,
+            args.input_edge,
+            args.device,
+        )
+
+    elif args.video is not None:
         infer_video(
             args.video,
             model,
@@ -202,7 +267,7 @@ if __name__ == "__main__":
             args.input_edge,
         )
 
-    elif args.img_dir is not None:
+    if args.save is True and args.img_dir is not None:
         for image_path in glob(os.path.join(args.img_dir, "*.png")):
 
             if not image_path.split("/")[-1][:-4].isnumeric():

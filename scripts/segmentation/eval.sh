@@ -1,0 +1,2 @@
+cd ../..
+python -m realtime_hand_3d.segmentation.infer --img_dir "data/segmentation/Ego2Hands/eval_imgs/eval_seq1_imgs/imgs/"  --target_dir "data/segmentation/Ego2Hands/eval_imgs/eval_seq1_imgs/masks/" --eval --save False --model "DFSegNetV1" --weights "model_weights/segmentation/run10/DFSegNetV1.pth" --grayscale --input_edge

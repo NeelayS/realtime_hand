@@ -215,12 +215,13 @@ def normalize_tensor(tensor, mean, std):
     return tensor
 
 
-def gen_e2h_mask(left_seg_path, right_seg_path, save_path):
+def gen_e2h_eval_mask(left_seg_path, right_seg_path, save_path):
 
     left_seg = cv2.imread(left_seg_path, cv2.IMREAD_GRAYSCALE)
     right_seg = cv2.imread(right_seg_path, cv2.IMREAD_GRAYSCALE)
 
-    seg = left_seg + right_seg
-    seg = seg / 255
+    seg = np.zeros_like(left_seg)
+    seg[left_seg > 0] = 255
+    seg[right_seg > 0] = 127
 
     cv2.imwrite(save_path, seg)
