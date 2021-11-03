@@ -13,7 +13,7 @@ class Ego2HandsDataset(Dataset):
     LEFT_IDX = 1
     RIGHT_IDX = 2
 
-    IMG_H = 288
+    IMG_H = 256 # 288
     IMG_W = 512
     VALID_HAND_SEG_TH = 5000
 
