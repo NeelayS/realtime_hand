@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -J TrainSegModels-DFSegNetV1.%j
+#SBATCH -J TrainSegModels-FastSCNN.%j
 #SBATCH -N 1
-#SBATCH -o ../../outs/segmentation/training/DFSegNetV1.%j.out
-#SBATCH -e ../../errs/segmentation/training/DFSegNetV1.%j.err
+#SBATCH -o ../../outs/segmentation/training/FastSCNN.%j.out
+#SBATCH -e ../../errs/segmentation/training/FastSCNN.%j.err
 #SBATCH -t 30:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:V100:1
@@ -11,15 +11,15 @@
 # device=$2
 
 train_cfg="configs/segmentation/base_trainer.yaml"
-model="DFSegNetV1"
+model="FastSCNN"
 img_dir="../sub_imgs" # "data/segmentation/Ego2Hands/train_imgs/"  
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
-log_dir="logs/segmentation/DFSegNetV1/run11"
-ckpt_dir="ckpts/segmentation/DFSegNetV1/run11"
+log_dir="logs/segmentation/FastSCNN/run12"
+ckpt_dir="ckpts/segmentation/FastSCNN/run12"
 epochs=15
 device="0"
 
-resume_ckpt="ckpts/segmentation/DFSegNetV1/DFSegNetV1_epoch_10.pth"
+resume_ckpt="ckpts/segmentation/FastSCNN/FastSCNN_epoch_10.pth"
 resume_epochs=10
 n_classes=3
 in_channels=2 # 3

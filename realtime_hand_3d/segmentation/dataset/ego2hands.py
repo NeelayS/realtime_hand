@@ -18,12 +18,13 @@ class Ego2HandsDataset(Dataset):
     VALID_HAND_SEG_TH = 5000
 
     def __init__(
-        self, img_dir, bg_dir, grayscale=False, with_arms=False, input_edge=False
+        self, img_dir, bg_dir, grayscale=False, with_arms=False, input_edge=False, augment=True
     ):
 
         self.grayscale = grayscale
         self.input_edge = input_edge
         self.with_arms = with_arms
+        self.augment = augment
 
         self.bg_list = self._read_bg_imgs(bg_dir)
         self.img_path_list, self.energy_path_list = self._read_hand_imgs(img_dir)
@@ -94,20 +95,22 @@ class Ego2HandsDataset(Dataset):
 
         left_img_orig = left_img.copy()
 
-        try:
-            left_img, left_seg = seg_augmentation_wo_kpts(left_img, left_seg)
-        except:
-            pass
+        if self.augment:
 
-        brightness_val = random.randint(50, 225)
+            try:
+                left_img, left_seg = seg_augmentation_wo_kpts(left_img, left_seg)
+            except:
+                pass
 
-        try:
-            left_img = change_mean_brightness(
-                left_img, left_seg, brightness_val, 20, self.img_path_list[left_i]
-            )
-            left_img = random_smoothness(left_img)
-        except:
-            pass
+            brightness_val = random.randint(50, 225)
+
+            try:
+                left_img = change_mean_brightness(
+                    left_img, left_seg, brightness_val, 20, self.img_path_list[left_i]
+                )
+                left_img = random_smoothness(left_img)
+            except:
+                pass
 
         right_i = random.randint(0, self.__len__() - 1)
         right_img = cv2.imread(self.img_path_list[right_i], cv2.IMREAD_UNCHANGED)
@@ -135,32 +138,36 @@ class Ego2HandsDataset(Dataset):
 
         right_img_orig = right_img.copy()
 
-        try:
-            right_img, right_seg = seg_augmentation_wo_kpts(right_img, right_seg)
-        except:
-            pass
+        if self.augment:
 
-        try:
-            right_img = change_mean_brightness(
-                right_img, right_seg, brightness_val, 20, self.img_path_list[right_i]
-            )
-            right_img = random_smoothness(right_img)
-        except:
-            pass
+            try:
+                right_img, right_seg = seg_augmentation_wo_kpts(right_img, right_seg)
+            except:
+                pass
+
+            try:
+                right_img = change_mean_brightness(
+                    right_img, right_seg, brightness_val, 20, self.img_path_list[right_i]
+                )
+                right_img = random_smoothness(right_img)
+            except:
+                pass
 
         bg_img = None
         while bg_img is None:
             bg_i = random.randint(0, len(self.bg_list) - 1)
             bg_img = cv2.imread(self.bg_list[bg_i]).astype(np.float32)
 
-            try:
-                bg_img = random_bg_augment(
-                    bg_img,
-                    self.bg_list[bg_i],
-                )
-                bg_img = random_smoothness(bg_img)
-            except:
-                pass
+            if self.augment:
+
+                try:
+                    bg_img = random_bg_augment(
+                        bg_img,
+                        self.bg_list[bg_i],
+                    )
+                    bg_img = random_smoothness(bg_img)
+                except:
+                    pass
 
         merge_mode = random.randint(0, 9)
         if merge_mode < 8:
