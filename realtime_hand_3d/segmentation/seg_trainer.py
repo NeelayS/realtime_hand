@@ -93,11 +93,12 @@ class SegTrainer:
     def _make_dataloader(self):
 
         dataset = Ego2HandsDataset(
-            self.img_dir,
-            self.bg_dir,
-            self.cfg.grayscale,
-            self.cfg.with_arms,
-            self.cfg.input_edge,
+            img_dir=self.img_dir,
+            bg_dir=self.bg_dir,
+            grayscale=self.cfg.grayscale,
+            with_arms=self.cfg.with_arms,
+            input_edge=self.cfg.input_edge,
+            augment=self.cfg.augment,
         )
 
         val_size = math.floor(self.cfg.val_split_ratio * len(dataset))

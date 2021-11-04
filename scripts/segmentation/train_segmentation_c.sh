@@ -3,7 +3,7 @@
 #SBATCH -N 1
 #SBATCH -o ../../outs/segmentation/training/SwiftNetRes18.%j.out
 #SBATCH -e ../../errs/segmentation/training/SwiftNetRes18.%j.err
-#SBATCH -t 24:00:00
+#SBATCH -t 30:00:00
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:V100:1
 
@@ -14,8 +14,8 @@ train_cfg="configs/segmentation/custom_loss_trainer.yaml"
 model="SwiftNetRes18"
 img_dir="../sub_imgs" #"data/segmentation/Ego2Hands/train_imgs/" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
-log_dir="logs/segmentation/SwiftNetRes18/run10"
-ckpt_dir="ckpts/segmentation/SwiftNetRes18/run10"
+log_dir="logs/segmentation/SwiftNetRes18/run12"
+ckpt_dir="ckpts/segmentation/SwiftNetRes18/run12"
 epochs=15
 device="0"
 

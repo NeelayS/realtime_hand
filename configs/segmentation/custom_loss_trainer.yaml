@@ -3,6 +3,7 @@
 custom_scene_brightness: "bright" #[dark, normal, bright]
 grayscale: True # False
 input_edge: True # False
+augment: False # False
 with_arms: False
 val_split_ratio: 0.01
 n_classes: 3
