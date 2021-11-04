@@ -221,7 +221,7 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, required=True)
     parser.add_argument("--weights", type=str, default=None)
     parser.add_argument("--video", type=str, default=None, required=False)
-    parser.add_argument("--image", type=str, default=None, required=False)
+    parser.add_argument("--img", type=str, default=None, required=False)
     parser.add_argument("--img_dir", type=str, default=None, required=False)
     parser.add_argument("--target_dir", type=str, default=None, required=False)
     parser.add_argument("--out_dir", type=str, default=".")
@@ -257,9 +257,9 @@ if __name__ == "__main__":
             args.input_edge,
         )
 
-    elif args.image is not None:
+    elif args.img is not None:
         infer_image(
-            args.image,
+            args.img,
             model,
             args.out_dir,
             args.device,

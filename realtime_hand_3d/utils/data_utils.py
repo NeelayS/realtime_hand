@@ -55,4 +55,6 @@ def create_video_from_images(img_dir, save_path, fps=25, img_extension="png"):
     else:
         command = f"ffmpeg -r {fps} -i {img_dir}/*.jpg -y {save_path}"
 
+    # cat *.png | ffmpeg -f image2pipe -i - output.mp4
+
     os.system(command)
