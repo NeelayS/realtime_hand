@@ -62,6 +62,9 @@ def test_seg_inference(
             infer_start = time()
 
             pred = model(X)
+            if isinstance(pred, tuple) or isinstance(pred, list):
+                pred = pred[0]
+
             pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)
             mask = F.softmax(pred, dim=1)
 
@@ -108,7 +111,6 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, required=False, help="Model to be used")
     parser.add_argument(
         "--all_models",
-        type=bool,
         action="store_true",
         default=False,
         help="Whether to test inference for all models",

@@ -4,19 +4,20 @@
 
 | Model                           | Frames per second | Output resolution before interpolation (relative to input)   |
 | --------------------------------| ------------------| --------------------------------------- |
-| UNet1/8                         |      387.80       |                 1                       |
-| SwiftNet                        |      281.57       |                 1/4                     |
-| DFSegNetSmall                   |      227.49       |                 1/8                     |
-| FastSCNN                        |      219.96       |                 1/8                     |
-| ICNet                           |      205.55       |                 1/8                     |
-| ModSegNet                       |      183.29       |                 1                       |
-| DFSegNet                        |      165.71       |                 1/8                     |
-| CSM                             |      115.6        |                 1/4                     |
-| SegNet                          |      68.43        |                 1                       |
-| UNet                            |      65.52        |                 1                       |
-| LightWeightRefineNet            |      50.90        |                 1/4                     |
-| PSPNet                          |      28.32        |                 1/8                     |
-| RefineNet                       |      28.05        |                 1/4                     |
+| UNet1/8                         |      431.67       |                 1                       |
+| SwiftNet                        |      308.08       |                 1/4                     |
+| DFSegNetSmall (V1)              |      277.09       |                 1/8                     |
+| BiSeNet                         |      248.94       |                 1/8                     |
+| FastSCNN                        |      239.52       |                 1/8                     |
+| ICNet                           |      221.14       |                 1/8                     |
+| ModSegNet                       |      188.52       |                 1                       |
+| DFSegNet (V2)                   |      180.39       |                 1/8                     |
+| CSM                             |      113.93       |                 1/4                     |
+| UNet                            |      71.68        |                 1                       |
+| SegNet                          |      70.81        |                 1                       |
+| LightWeightRefineNet            |      55.97        |                 1/4                     |
+| PSPNetSmall                     |      31.06        |                 1/8                     |
+| RefineNet                       |      30.68        |                 1/4                     |
 
 
 

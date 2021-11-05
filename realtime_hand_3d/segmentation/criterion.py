@@ -255,7 +255,7 @@ class ModCriterionICNet(nn.Module):
 
 
 SEG_MODEL_CRITERIONS = {
-    "BiSegNet": "CriterionDSN",
+    "BiSeNet": "CriterionDFANet",
     "DFANet": "CriterionDFANet",
     "DFSegNet": "CriterionDSN",
     "DFSegNetV1": "CriterionDSN",
