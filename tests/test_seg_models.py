@@ -1,7 +1,7 @@
 import torch
 
 from realtime_hand_3d.segmentation.models import (
-    BiSegNet,
+    BiSeNet,
     CustomICNet,
     CustomSmallUNet,
     CustomUNet,
@@ -24,15 +24,16 @@ from realtime_hand_3d.segmentation.models import (
     UNet,
 )
 
-
 in_channels = 3
 inp = torch.randn(2, in_channels, 512, 512)
 
-# def test_BiSegNet():
 
-#     model = BiSegNet(in_channels=in_channels, n_classes=3).eval()
-#     _ = model(inp)
-#     del model
+def test_BiSeNet():
+
+    model = BiSeNet(in_channels=in_channels, n_classes=3).eval()
+    _ = model(inp)
+    del model
+
 
 # def test_CustomICNet():
 

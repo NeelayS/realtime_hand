@@ -1,5 +1,6 @@
 import os
 import random
+
 import cv2
 import numpy as np
 import torch
@@ -13,12 +14,18 @@ class Ego2HandsDataset(Dataset):
     LEFT_IDX = 1
     RIGHT_IDX = 2
 
-    IMG_H = 256 # 288
+    IMG_H = 256  # 288
     IMG_W = 512
     VALID_HAND_SEG_TH = 5000
 
     def __init__(
-        self, img_dir, bg_dir, grayscale=False, with_arms=False, input_edge=False, augment=True
+        self,
+        img_dir,
+        bg_dir,
+        grayscale=False,
+        with_arms=False,
+        input_edge=False,
+        augment=True,
     ):
 
         self.grayscale = grayscale
@@ -147,7 +154,11 @@ class Ego2HandsDataset(Dataset):
 
             try:
                 right_img = change_mean_brightness(
-                    right_img, right_seg, brightness_val, 20, self.img_path_list[right_i]
+                    right_img,
+                    right_seg,
+                    brightness_val,
+                    20,
+                    self.img_path_list[right_i],
                 )
                 right_img = random_smoothness(right_img)
             except:

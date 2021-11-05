@@ -1,4 +1,4 @@
-from .bisegnet import BiSegNet
+from .bisenet import BiSeNet
 from .csm import CSM
 from .custom_icnet import CustomICNet
 from .custom_unet import CustomSmallUNet, CustomUNet
