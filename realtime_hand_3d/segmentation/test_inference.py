@@ -109,7 +109,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--all_models",
         type=bool,
-        required=False,
+        action="store_true",
+        default=False,
         help="Whether to test inference for all models",
     )
     parser.add_argument(
