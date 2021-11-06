@@ -411,7 +411,7 @@ class BiSeNet(nn.Module):
             return feat_out, feat_out16, feat_out32
 
         else:
-            return (feat_out,)
+            return feat_out
 
     def init_weight(self):
 
