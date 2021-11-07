@@ -12,7 +12,7 @@ from .dataset import normalize_tensor
 from .models import SEG_MODELS_REGISTRY
 
 
-def preprocess(img, size=(512, 288), grayscale=False, input_edge=False):
+def preprocess(img, size=(512, 256), grayscale=False, input_edge=False):
 
     if grayscale:
         img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -60,9 +60,9 @@ def infer_image(
 
     img = cv.imread(image_path)
     H, W, _ = img.shape
-    img_r = cv.resize(img, (512, 288))
+    img_r = cv.resize(img, (512, 256))
 
-    img = preprocess(img, size=(512, 288), grayscale=grayscale, input_edge=input_edge)
+    img = preprocess(img, size=(512, 256), grayscale=grayscale, input_edge=input_edge)
 
     with torch.no_grad():
         pred = model(img.to(device))
@@ -165,7 +165,7 @@ def eval_imgs(model, img_dir, target_dir, grayscale, input_edge, device="cpu"):
         img = cv.imread(img_path)
         H, W, _ = img.shape
         img = preprocess(
-            img, size=(512, 288), grayscale=grayscale, input_edge=input_edge
+            img, size=(512, 256), grayscale=grayscale, input_edge=input_edge
         )
 
         target = cv.imread(target_path, cv.IMREAD_GRAYSCALE) // 127
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     parser.add_argument("--grayscale", action="store_true", default=False)
     parser.add_argument("--input_edge", action="store_true", default=False)
     parser.add_argument("--eval", action="store_true", default=False)
-    parser.add_argument("--save", required=False, default=True)
+    parser.add_argument("--save", action="store_true", default=False)
     args = parser.parse_args()
 
     model = setup_model(args.model, args.weights, args.grayscale, args.input_edge)
