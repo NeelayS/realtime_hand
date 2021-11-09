@@ -12,7 +12,7 @@ from .dataset import normalize_tensor
 from .models import SEG_MODELS_REGISTRY
 
 
-def preprocess(img, size=(512, 256), grayscale=False, input_edge=False):
+def preprocess(img, size=(512, 288), grayscale=False, input_edge=False):
 
     if grayscale:
         img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -50,7 +50,13 @@ def preprocess(img, size=(512, 256), grayscale=False, input_edge=False):
 
 
 def infer_image(
-    image_path, model, out_dir, device="cpu", grayscale=False, input_edge=False
+    image_path,
+    model,
+    out_dir,
+    device="cpu",
+    grayscale=False,
+    input_edge=False,
+    size=(512, 288),
 ):
 
     device = torch.device(device)
@@ -60,9 +66,9 @@ def infer_image(
 
     img = cv.imread(image_path)
     H, W, _ = img.shape
-    img_r = cv.resize(img, (512, 256))
+    img_r = img.copy()  # img_r = cv.resize(img, size)
 
-    img = preprocess(img, size=(512, 256), grayscale=grayscale, input_edge=input_edge)
+    img = preprocess(img, size=size, grayscale=grayscale, input_edge=input_edge)
 
     with torch.no_grad():
         pred = model(img.to(device))
@@ -70,9 +76,10 @@ def infer_image(
     if isinstance(pred, tuple) or isinstance(pred, list):
         pred = pred[0]
 
-    pred = F.interpolate(
-        pred, size=img.shape[-2:], mode="bilinear", align_corners=True
-    )[0]
+    pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)[0]
+    # pred = F.interpolate(
+    #     pred, size=img.shape[-2:], mode="bilinear", align_corners=True
+    # )[0]
     pred = F.softmax(pred, dim=0)
     mask = torch.argmax(pred, dim=0).cpu().numpy()
 
@@ -89,7 +96,13 @@ def infer_image(
 
 
 def infer_video(
-    video_path, model, out_dir, device="cpu", grayscale=False, input_edge=False
+    video_path,
+    model,
+    out_dir,
+    device="cpu",
+    grayscale=False,
+    input_edge=False,
+    size=(512, 288),
 ):
 
     device = torch.device(device)
@@ -116,7 +129,7 @@ def infer_video(
 
         H, W = frame.shape[:2]
 
-        img = preprocess(frame, size=(W, H), grayscale=grayscale, input_edge=input_edge)
+        img = preprocess(frame, size=size, grayscale=grayscale, input_edge=input_edge)
         img = img.to(device)
 
         with torch.no_grad():
@@ -125,15 +138,13 @@ def infer_video(
         if isinstance(pred, tuple) or isinstance(pred, list):
             pred = pred[0]
 
-        pred = F.interpolate(
-            pred, size=img.shape[-2:], mode="bilinear", align_corners=True
-        )[0]
+        pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)[0]
         pred = F.softmax(pred, dim=0)
         mask = torch.argmax(pred, dim=0).cpu().numpy()
 
         new_frame = frame
-        new_frame[mask == 1] = [128, 128, 255]
-        new_frame[mask == 2] = [255, 128, 128]
+        new_frame[mask == 1] = [127, 127, 255]
+        new_frame[mask == 2] = [255, 127, 127]
         new_frame = cv.resize(new_frame, (W, H))
 
         out_video.write(new_frame)
@@ -142,7 +153,9 @@ def infer_video(
     out_video.release()
 
 
-def eval_imgs(model, img_dir, target_dir, grayscale, input_edge, device="cpu"):
+def eval_imgs(
+    model, img_dir, target_dir, grayscale, input_edge, device="cpu", size=(512, 288)
+):
 
     device = torch.device(device)
 
@@ -164,9 +177,7 @@ def eval_imgs(model, img_dir, target_dir, grayscale, input_edge, device="cpu"):
 
         img = cv.imread(img_path)
         H, W, _ = img.shape
-        img = preprocess(
-            img, size=(512, 256), grayscale=grayscale, input_edge=input_edge
-        )
+        img = preprocess(img, size=size, grayscale=grayscale, input_edge=input_edge)
 
         target = cv.imread(target_path, cv.IMREAD_GRAYSCALE) // 127
         target = torch.from_numpy(target).long()
@@ -230,7 +241,10 @@ if __name__ == "__main__":
     parser.add_argument("--input_edge", action="store_true", default=False)
     parser.add_argument("--eval", action="store_true", default=False)
     parser.add_argument("--save", action="store_true", default=False)
+    parser.add_argument("--size", type=str, default="512, 288")
     args = parser.parse_args()
+
+    size = tuple(map(int, args.size.split(",")))
 
     model = setup_model(args.model, args.weights, args.grayscale, args.input_edge)
 
@@ -245,6 +259,7 @@ if __name__ == "__main__":
             args.grayscale,
             args.input_edge,
             args.device,
+            size=size,
         )
 
     elif args.video is not None:
@@ -265,10 +280,11 @@ if __name__ == "__main__":
             args.device,
             args.grayscale,
             args.input_edge,
+            size=size,
         )
 
     if args.save is True and args.img_dir is not None:
-        for image_path in glob(os.path.join(args.img_dir, "*.png")):
+        for image_path in sorted(glob(os.path.join(args.img_dir, "*.png"))):
 
             if not image_path.split("/")[-1][:-4].isnumeric():
                 continue
@@ -281,4 +297,5 @@ if __name__ == "__main__":
                 args.device,
                 args.grayscale,
                 args.input_edge,
+                size=size,
             )
