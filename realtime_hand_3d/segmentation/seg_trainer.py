@@ -228,7 +228,7 @@ class SegTrainer:
 
                 optimizer.zero_grad()
                 loss.backward()
-                nn.utils.clip_grad_norm_(model.parameters(), 1)
+                nn.utils.clip_grad_norm_(model.parameters(), 2.5)
                 optimizer.step()
 
                 if scheduler is not None:

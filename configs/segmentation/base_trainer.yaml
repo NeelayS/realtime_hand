@@ -7,19 +7,19 @@ augment: True # False
 with_arms: False
 val_split_ratio: 0.01
 n_classes: 3
-in_channels: 3
+in_channels: 2
 
 # Training
 
 batch_size: 32
-n_epochs: 10
+n_epochs: 20
 max_epoch_iterations: 500
 optimizer: 
-  name: "AdamW"
-  lr: 0.001
-  params:
-    weight_decay: 0.0001
-    eps: 1.e-08
+  name: "Adam"
+  lr: 0.0003
+  params: null
+    # weight_decay: 0.0001
+    # eps: 1.e-08
 scheduler: 
   use: False
   name: "ReduceLROnPlateau"
