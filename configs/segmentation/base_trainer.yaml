@@ -1,5 +1,6 @@
 # Data 
 
+dataset: Ego2Hands
 custom_scene_brightness: "bright" #[dark, normal, bright]
 grayscale: True # False
 input_edge: True # False
