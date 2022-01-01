@@ -470,7 +470,7 @@ class SegTrainer:
 
         if consolidated_ckpt is not None:
 
-            ckpt = torch.load(consolidated_ckpt, map_location=torch.device('cpu'))
+            ckpt = torch.load(consolidated_ckpt, map_location=torch.device("cpu"))
 
             model_state_dict = ckpt["model_state_dict"]
             optimizer_state_dict = ckpt["optimizer_state_dict"]
@@ -487,11 +487,15 @@ class SegTrainer:
                 model_ckpt is not None and optimizer_ckpt is not None
             ), "Must provide a consolidated ckpt or model and optimizer ckpts separately"
 
-            model_state_dict = torch.load(model_ckpt, map_location=torch.device('cpu'))
-            optimizer_state_dict = torch.load(optimizer_ckpt, map_location=torch.device('cpu'))
+            model_state_dict = torch.load(model_ckpt, map_location=torch.device("cpu"))
+            optimizer_state_dict = torch.load(
+                optimizer_ckpt, map_location=torch.device("cpu")
+            )
 
             if scheduler_ckpt is not None:
-                scheduler_state_dict = torch.load(scheduler_ckpt, map_location=torch.device('cpu'))
+                scheduler_state_dict = torch.load(
+                    scheduler_ckpt, map_location=torch.device("cpu")
+                )
 
         if self.model_parallel:
             model = self.model.module
