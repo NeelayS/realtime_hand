@@ -37,14 +37,16 @@ class SegTrainer:
         self.img_dir = img_dir
         self.bg_dir = bg_dir
 
-        if device is None:
-            device = self.cfg.device
+        if device is not None:
+            self.cfg.device = device
 
         self.model = model
         self.model_name = model.__class__.__name__
-        self._setup_model(model, device)
+        self._setup_model(model)
 
-    def _setup_model(self, model, device):
+    def _setup_model(self, model):
+
+        device = self.cfg.device
 
         if isinstance(device, list) or isinstance(device, tuple):
             device = ",".join(map(str, device))
@@ -468,7 +470,7 @@ class SegTrainer:
 
         if consolidated_ckpt is not None:
 
-            ckpt = torch.load(consolidated_ckpt)
+            ckpt = torch.load(consolidated_ckpt, map_location=torch.device('cpu'))
 
             model_state_dict = ckpt["model_state_dict"]
             optimizer_state_dict = ckpt["optimizer_state_dict"]
@@ -485,13 +487,17 @@ class SegTrainer:
                 model_ckpt is not None and optimizer_ckpt is not None
             ), "Must provide a consolidated ckpt or model and optimizer ckpts separately"
 
-            model_state_dict = torch.load(model_ckpt)
-            optimizer_state_dict = torch.load(optimizer_ckpt)
+            model_state_dict = torch.load(model_ckpt, map_location=torch.device('cpu'))
+            optimizer_state_dict = torch.load(optimizer_ckpt, map_location=torch.device('cpu'))
 
             if scheduler_ckpt is not None:
-                scheduler_state_dict = torch.load(scheduler_ckpt)
+                scheduler_state_dict = torch.load(scheduler_ckpt, map_location=torch.device('cpu'))
 
-        model = self.model.module
+        if self.model_parallel:
+            model = self.model.module
+        else:
+            model = self.model
+
         model.load_state_dict(model_state_dict)
         self._setup_model(model)
 
@@ -594,8 +600,7 @@ if __name__ == "__main__":
     parser.add_argument("--lr", required=False, help="Learning rate")
     parser.add_argument(
         "--resume",
-        type=bool,
-        default=False,
+        action="store_true",
         help="Whether to resume training from a previous ckpt",
     )
     parser.add_argument(
@@ -636,7 +641,7 @@ if __name__ == "__main__":
 
     trainer = SegTrainer(model, training_cfg, args.img_dir, args.bg_dir, args.device)
 
-    if args.resume is True:
+    if args.resume:
         assert (
             args.resume_ckpt is not None
         ), "Please provide a ckpt to resume training from"
