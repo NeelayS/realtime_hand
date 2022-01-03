@@ -1,6 +1,9 @@
 import os
-
+import numpy as np
+from PIL import Image
+from scipy.ndimage.morphology import distance_transform_edt
 import cv2 as cv
+import torch
 
 
 def normalize_tensor(tensor, mean, std):
@@ -58,3 +61,79 @@ def create_video_from_images(img_dir, save_path, fps=25, img_extension="png"):
     # cat *.png | ffmpeg -f image2pipe -i - output.mp4
 
     os.system(command)
+
+
+def mask_to_onehot(mask, num_classes):
+    """
+    Converts a segmentation mask (H,W) to (K,H,W) where the last dim is a one
+    hot encoding vector
+    """
+    mask = [mask == i for i in range(num_classes)]
+    mask = torch.stack(mask, dim=1)
+    return mask.numpy()
+
+
+def onehot_to_mask(mask):
+    """
+    Converts a mask (K,H,W) to (H,W)
+    """
+    _mask = np.argmax(mask, axis=0)
+    _mask[_mask != 0] += 1
+    return _mask
+
+
+def onehot_to_multiclass_edges(mask, radius, num_classes):
+    """
+    Converts a segmentation mask (K,H,W) to an edgemap (K,H,W)
+    """
+    if radius < 0:
+        return mask
+
+    # We need to pad the borders for boundary conditions
+    print(mask.shape)
+    mask_pad = np.pad(
+        mask, ((0, 0), (1, 1), (1, 1)), mode="constant", constant_values=0
+    )
+
+    channels = []
+    for i in range(num_classes):
+        dist = distance_transform_edt(mask_pad[i, :]) + distance_transform_edt(
+            1.0 - mask_pad[i, :]
+        )
+        dist = dist[1:-1, 1:-1]
+        dist[dist > radius] = 0
+        dist = (dist > 0).astype(np.uint8)
+        channels.append(dist)
+
+    return np.array(channels)
+
+
+def onehot_to_binary_edges(mask, radius, num_classes):
+    """
+    Converts a segmentation mask (K,H,W) to a binary edgemap (H,W)
+    """
+
+    if radius < 0:
+        return mask
+
+    # We need to pad the borders for boundary conditions
+    print(mask.shape)
+    mask_pad = np.pad(
+        mask[0], ((0, 0), (1, 1), (1, 1)), mode="constant", constant_values=0
+    )
+    edgemap = np.zeros(mask.shape[2:])
+
+    for i in range(num_classes):
+        dist = distance_transform_edt(mask_pad[i, :]) + distance_transform_edt(
+            1.0 - mask_pad[i, :]
+        )
+        dist = dist[1:-1, 1:-1]
+        dist[dist > radius] = 0
+        print(edgemap.shape, dist.shape)
+        edgemap += dist
+
+    edgemap = np.expand_dims(edgemap, axis=0)
+    edgemap = np.expand_dims(edgemap, axis=0)
+    edgemap = (edgemap > 0).astype(np.uint8)
+
+    return torch.from_numpy(edgemap)

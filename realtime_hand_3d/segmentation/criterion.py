@@ -1,8 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
+from scipy.ndimage.morphology import distance_transform_edt
+import cv2 as cv
 
-from ..utils import Registry
+from ..utils import Registry, mask_to_onehot, onehot_to_binary_edges
 
 SEG_CRITERION_REGISTRY = Registry("CRITERION")
 
@@ -254,8 +257,140 @@ class ModCriterionICNet(nn.Module):
         return loss1 + 0.4 * loss2 + 0.4 * loss3
 
 
+@SEG_CRITERION_REGISTRY.register()
+class CriterionModBiSeNet(nn.Module):
+    def __init__(self, ignore_index=255, thresh=0.7, min_kept=100000, reduce=True):
+        super().__init__()
+
+        self.ignore_index = ignore_index
+        self.criterion1 = OhemCrossEntropy2dTensor(
+            ignore_index, thresh=thresh, min_kept=min_kept
+        )
+        self.criterion2 = torch.nn.CrossEntropyLoss(
+            ignore_index=ignore_index, reduce=reduce
+        )
+
+    def bce2d(self, input, target):
+        n, c, h, w = input.size()
+
+        print(input.shape, target.shape)
+
+        log_p = input.contiguous().view(1, -1)
+        target_t = target.contiguous().view(1, -1)
+        target_trans = target_t.clone()
+
+        pos_index = target_t == 1
+        neg_index = target_t == 0
+        ignore_index = target_t > 1
+
+        target_trans[pos_index] = 1
+        target_trans[neg_index] = 0
+
+        pos_index = pos_index.data.cpu().numpy().astype(bool)
+        neg_index = neg_index.data.cpu().numpy().astype(bool)
+        ignore_index = ignore_index.data.cpu().numpy().astype(bool)
+
+        weight = torch.Tensor(target_t.size()).fill_(0)
+        weight = weight.numpy()
+        pos_num = pos_index.sum()
+        neg_num = neg_index.sum()
+        sum_num = pos_num + neg_num
+
+        print(weight.shape, pos_index.shape, neg_index.shape, ignore_index.shape)
+
+        weight[pos_index] = neg_num * 1.0 / sum_num
+        weight[neg_index] = pos_num * 1.0 / sum_num
+
+        weight[ignore_index] = 0
+
+        weight = torch.from_numpy(weight)
+        weight = weight
+        loss = F.binary_cross_entropy_with_logits(
+            log_p, target_t, weight, reduction="mean"
+        )
+
+        print("done")
+
+        return loss
+
+    def mask_to_onehot(self, mask, num_classes):
+        """
+        Converts a segmentation mask (H,W) to (K,H,W) where the last dim is a one
+        hot encoding vector
+        """
+        mask = [mask == i for i in range(num_classes)]
+        mask = torch.stack(mask, dim=1)
+        return mask.numpy()
+
+    def onehot_to_binary_edges(self, mask, radius, num_classes):
+        """
+        Converts a segmentation mask (K,H,W) to a binary edgemap (H,W)
+        """
+
+        if radius < 0:
+            return mask
+
+        # We need to pad the borders for boundary conditions
+        print(mask.shape)
+        mask_pad = np.pad(
+            mask, ((0, 0), (0, 0), (1, 1), (0, 0)), mode="constant", constant_values=0
+        )
+        edgemap = np.zeros(mask.shape[2:])
+
+        for i in range(num_classes):
+            dist = distance_transform_edt(mask_pad[i, :]) + distance_transform_edt(
+                1.0 - mask_pad[i, :]
+            )
+            dist = dist[1:-1, 1:-1]
+            dist[dist > radius] = 0
+            print(edgemap.shape, dist.shape)
+            edgemap += dist[0]
+
+        # edgemap = np.expand_dims(edgemap, axis=0)
+        edgemap = np.expand_dims(edgemap, axis=0)
+        edgemap = (edgemap > 0).astype(np.uint8)
+
+        return torch.from_numpy(edgemap)
+
+    def forward(self, preds, target):
+
+        h, w = target.size(1), target.size(2)
+
+        scale_pred = F.interpolate(
+            input=preds[0], size=(h, w), mode="bilinear", align_corners=True
+        )
+        loss1 = self.criterion1(scale_pred, target)
+
+        scale_pred = F.interpolate(
+            input=preds[1], size=(h, w), mode="bilinear", align_corners=True
+        )
+        loss2 = self.criterion1(scale_pred, target)
+
+        scale_pred = F.interpolate(
+            input=preds[2], size=(h, w), mode="bilinear", align_corners=True
+        )
+        loss3 = self.criterion1(scale_pred, target)
+
+        scale_edge = F.interpolate(
+            input=preds[3], size=(h, w), mode="bilinear", align_corners=True
+        )
+        print(scale_edge.shape)
+
+        edge_target = target.clone()
+        print(edge_target.shape)
+        edge_target = self.mask_to_onehot(edge_target, 3)
+        print(edge_target.shape)
+        edge_target = self.onehot_to_binary_edges(edge_target, 2, 3)
+        print(edge_target.shape)
+
+        loss4 = self.bce2d(scale_edge, edge_target)
+
+        return loss1 + 0.4 * loss2 + 0.4 * loss3 + loss4
+
+
 SEG_MODEL_CRITERIONS = {
     "BiSeNet": "CriterionDFANet",
+    "ModBiSeNet": "CriterionModBiSeNet",
     "DFANet": "CriterionDFANet",
     "DFSegNet": "CriterionDSN",
     "DFSegNetV1": "CriterionDSN",

@@ -14,3 +14,4 @@ from .retrieve import SEG_MODELS_REGISTRY
 from .segnet import SegNet
 from .swiftnet import SwiftNetRes18, SwiftNetResNet
 from .unet import SmallUNet, UNet
+from .mod_bisenet import ModBiSeNet
