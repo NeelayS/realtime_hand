@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -J ResumeTrainSegModels-SwiftNetRes18.%j
+#SBATCH -J ResumeTrainSegModels-BiSeNet.%j
 #SBATCH -N 1
-#SBATCH -o ../../../results/outs/segmentation/training/SwiftNetRes18.%j.out
-#SBATCH -e ../../../results/errs/segmentation/training/SwiftNetRes18.%j.err
-#SBATCH -t 36:00:00
+#SBATCH -o ../../../results/outs/segmentation/training/BiSeNet.%j.out
+#SBATCH -e ../../../results/errs/segmentation/training/BiSeNet.%j.err
+#SBATCH -t 24:00:00
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:V100:1
 
@@ -14,15 +14,15 @@ n_classes=3
 in_channels=2 # 3
 
 train_cfg="configs/segmentation/custom_loss_trainer.yaml"
-model="SwiftNetRes18"
+model="BiSeNet"
 img_dir="../data/sub_imgs" # "data/segmentation/Ego2Hands/train_imgs/" 
 bg_dir="data/segmentation/Ego2Hands/bg_imgs" 
-log_dir="../results/logs/segmentation/SwiftNetRes18/run1"
-ckpt_dir="../results/ckpts/segmentation/SwiftNetRes18/run1"
+log_dir="../results/logs/segmentation/BiSeNet/run1"
+ckpt_dir="../results/ckpts/segmentation/BiSeNet/run1"
 epochs=20
 device="0"
 
-resume_ckpt="../results/ckpts/segmentation/SwiftNetRes18/run1/SwiftNetResNet_epochs23.pth"
+resume_ckpt="../results/ckpts/segmentation/BiSeNet/run1/BiSeNet_epochs38.pth"
 resume_epochs=15
 
 cd ../..
