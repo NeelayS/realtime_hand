@@ -241,7 +241,7 @@ if __name__ == "__main__":
     parser.add_argument("--input_edge", action="store_true", default=False)
     parser.add_argument("--eval", action="store_true", default=False)
     parser.add_argument("--save", action="store_true", default=False)
-    parser.add_argument("--size", type=str, default="512, 288")
+    parser.add_argument("--size", type=str, default="512,288")
     args = parser.parse_args()
 
     size = tuple(map(int, args.size.split(",")))
