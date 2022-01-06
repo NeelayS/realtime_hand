@@ -1,6 +1,9 @@
 import cv2 as cv
 import numpy as np
+import os
+import shutil
 import torch
+from torchvision import io
 
 
 def resize_image(
@@ -86,3 +89,44 @@ def preprocessing(image, expected_size=224, pad_value=0):
     X = torch.tensor(X, dtype=torch.float32)
 
     return X, pad_up, pad_left, h_new, w_new
+
+
+def gen_e2h_eval_masks(root_dir):
+
+    for seq_dir in os.listdir(root_dir):
+
+        if seq_dir[:4] != "eval":
+            continue
+
+        print("Processing directory", seq_dir)
+
+        seq = seq_dir.split("_")[1][3:]
+        os.makedirs(os.path.join("imgs", seq), exist_ok=True)
+        os.makedirs(os.path.join("masks", seq), exist_ok=True)
+
+        for img_path in os.listdir(seq_dir):
+
+            if (
+                img_path.split(".")[0][-4:] == "_e_l"
+                or img_path.split(".")[0][-4:] == "_e_r"
+                or img_path.split(".")[0][-4:] == "_seg"
+            ):
+                continue
+
+            img = io.read_image(os.path.join(seq_dir, img_path))
+            shutil.copy(
+                os.path.join(seq_dir, img_path), os.path.join("imgs", seq, img_path)
+            )
+
+            l_mask = io.read_image(
+                os.path.join(seq_dir, img_path.replace(".png", "_e_l.png"))
+            )
+            r_mask = io.read_image(
+                os.path.join(seq_dir, img_path.replace(".png", "_e_r.png"))
+            )
+
+            mask = torch.zeros_like(l_mask)
+            mask[l_mask == 255] = 127
+            mask[r_mask == 255] = 255
+
+            io.write_png(mask, os.path.join("masks", seq, img_path))
