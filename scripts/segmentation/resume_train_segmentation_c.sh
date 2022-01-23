@@ -22,8 +22,8 @@ ckpt_dir="../results/ckpts/segmentation/BiSeNet/run1"
 epochs=20
 device="0"
 
-resume_ckpt="../results/ckpts/segmentation/BiSeNet/run1/BiSeNet_epochs38.pth"
-resume_epochs=15
+resume_ckpt="../results/ckpts/segmentation/BiSeNet/run1/BiSeNet_epochs53.pth"
+resume_epochs=10
 
 cd ../..
 module load nvidia/10.2
