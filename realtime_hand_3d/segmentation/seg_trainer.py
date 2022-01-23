@@ -10,10 +10,10 @@ from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 from torchmetrics import IoU
 
-from .criterion import SEG_MODEL_CRITERIONS, SEG_CRITERION_REGISTRY
+from ..utils import AverageMeter, Config, optimizers, schedulers
+from .criterion import SEG_CRITERION_REGISTRY, SEG_MODEL_CRITERIONS
 from .dataset import Ego2HandsDataset
 from .models import SEG_MODELS_REGISTRY
-from ..utils import optimizers, schedulers, AverageMeter, Config
 
 
 class SegTrainer:
