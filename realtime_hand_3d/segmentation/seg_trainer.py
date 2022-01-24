@@ -370,7 +370,7 @@ class SegTrainer:
                     consolidated_save_dict,
                     os.path.join(
                         self.cfg.ckpt_dir,
-                        self.model_name + "_epochs" + str(epochs + 1) + ".pth",
+                        self.model_name + "_epoch" + str(epochs + 1) + ".pth",
                     ),
                 )
 
