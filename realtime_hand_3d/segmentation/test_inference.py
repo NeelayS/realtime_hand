@@ -1,5 +1,6 @@
 import os
 from time import time
+
 import cv2 as cv
 import torch
 import torch.nn.functional as F
@@ -62,17 +63,18 @@ def test_seg_inference(
             infer_start = time()
 
             pred = model(X)
-            if isinstance(pred, tuple) or isinstance(pred, list):
-                pred = pred[0]
-
-            pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)
-            mask = F.softmax(pred, dim=1)
 
             if torch.cuda.is_available():
                 torch.cuda.synchronize()
 
             infer_end = time()
             inference_times.append(infer_end - infer_start)
+
+            if isinstance(pred, tuple) or isinstance(pred, list):
+                pred = pred[0]
+
+            pred = F.interpolate(pred, size=(H, W), mode="bilinear", align_corners=True)
+            mask = F.softmax(pred, dim=1)
 
             # mask = mask[..., pad_up : pad_up + h_new, pad_left : pad_left + w_new]
 
